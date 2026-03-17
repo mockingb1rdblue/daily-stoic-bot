@@ -65,7 +65,7 @@ export async function callBifrost(env: Env, request: BifrostRequest): Promise<Bi
 		// Falls back to HTTP fetch if binding unavailable (local dev)
 		const response = env.BIFROST_ROUTER
 			? await env.BIFROST_ROUTER.fetch('https://crypt-core/v1/llm/chat', requestInit)
-			: await fetch(`${env.ROUTER_URL || 'https://crypt-core.mock1ng.workers.dev'}/v1/llm/chat`, requestInit);
+			: await fetch(`${env.ROUTER_URL || ''}/v1/llm/chat`, requestInit);
 
 		if (!response.ok) {
 			const errorText = await response.text();

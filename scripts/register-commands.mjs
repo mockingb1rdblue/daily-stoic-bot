@@ -181,8 +181,9 @@ const STOIC_COMMAND = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BIFROST_KV_NAMESPACE_ID = 'be16781ec93e4adc8048ba1edee3d10c';
-const BIFROST_PROJECT_DIR = '/Users/mock1ng/AntiGH/bifrost-bridge';
+const BIFROST_KV_NAMESPACE_ID = 'YOUR_BIFROST_KV_NAMESPACE_ID';
+// Set this to the path where your bifrost-bridge project lives:
+const BIFROST_PROJECT_DIR = '/path/to/your/bifrost-bridge';
 
 /**
  * Read a value from Bifrost KV via wrangler CLI.

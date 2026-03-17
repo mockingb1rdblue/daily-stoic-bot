@@ -1,193 +1,140 @@
 # Daily Stoic Bot
 
-A Discord bot that posts daily Stoic philosophy entries and facilitates reflection through AI-powered Socratic dialogue. Built on Cloudflare Workers with Bifrost LLM routing.
+A Discord bot that posts daily Stoic philosophy entries and facilitates reflection through AI-powered Socratic dialogue.
 
-## Prerequisites
+**[Add to your server](https://discord.com/api/oauth2/authorize?client_id=YOUR_APP_ID&permissions=2419724368&scope=bot%20applications.commands)** (replace `YOUR_APP_ID` with your Discord Application ID)
 
-- Node.js 25.x with npm
-- Wrangler CLI (`npm i -g wrangler` or use npx)
-- Authenticated Wrangler (`wrangler login`)
-- A Discord server you own or admin
+## Features
 
-## Setup (step by step)
+| Feature | Command / Trigger | Description |
+|---------|-------------------|-------------|
+| Daily Post | Cron (morning) | Posts today's Stoic entry with quote + commentary |
+| Evening Examination | Cron (evening) | 3 personalized Socratic questions in private threads |
+| Obstacle Reframe | `/stoic obstacle` | AI-powered Stoic reframe of a real-life situation |
+| Personal Lens | `/stoic context` | Set persistent context for personalized reflections |
+| Unsent Letter | `/stoic letter` | Private philosophical letter-writing exercise |
+| Philosopher Voice | `/stoic voice` | Choose Epictetus, Seneca, or Marcus Aurelius tone |
+| The Adversary | "Challenge This" button | Strongest objection to the day's teaching |
+| Virtue Poll | Cron (weekly) | Community reflection on practiced virtues |
+| Server Setup | `/stoic setup` | Auto-create channels and configure posting schedule |
 
-### 1. Install dependencies
+### What a daily post looks like
+
+> **January 1 — Control and Choice**
+>
+> *"The chief task in life is simply this: to identify and separate matters so that I can say clearly to myself which are externals not under my control, and which have to do with the choices I actually control."*
+> — Epictetus, Discourses, 2.5.4-5
+>
+> [Commentary paragraph from the book]
+>
+> [Challenge This] [Reflect]
+
+## Stack
+
+- **Runtime**: [Cloudflare Workers](https://workers.cloudflare.com/)
+- **Database**: [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite at the edge)
+- **LLM Routing**: [Bifrost Bridge](https://github.com/search?q=bifrost-bridge) — bandit-selected multi-model router (Gemini, DeepSeek, Claude, Sonar)
+- **Secrets**: Bifrost KV (zero local secrets)
+- **Discord**: [discord-interactions](https://github.com/discord/discord-interactions-js) (raw REST, no discord.js)
+
+## Quick Start
+
+### 1. Clone and install
 
 ```bash
+git clone https://github.com/YOUR_USERNAME/daily-stoic-bot.git
+cd daily-stoic-bot
 npm install
 ```
 
-### 2. Create Discord Application
+### 2. Create a Discord Application
 
-Go to https://discord.com/developers/applications
+See [docs/DISCORD_SETUP.md](docs/DISCORD_SETUP.md) for detailed instructions. You will need:
+- `DISCORD_APP_ID`
+- `DISCORD_PUBLIC_KEY`
+- `DISCORD_BOT_TOKEN`
+- `GUILD_ID` (your test server)
 
-1. **New Application** > name it "Daily Stoic" > Create
-2. Copy `APPLICATION ID` and `PUBLIC KEY` from General Information
-3. Go to **Bot** tab > Reset Token > copy the `BOT TOKEN`
-4. Enable these intents on the Bot page:
-   - Server Members Intent: ON
-   - Message Content Intent: ON
-5. Go to **OAuth2** > URL Generator:
-   - Scopes: `bot`, `applications.commands`
-   - Bot Permissions: Send Messages, Send Messages in Threads, Create Public Threads, Create Private Threads, Embed Links, Read Message History, Use Slash Commands, Manage Threads, Add Reactions, Use External Emojis
-6. Copy the generated URL, open it, and add the bot to your server
-
-### 3. Set up Discord server channels
-
-Create these channels:
-
-| Channel | Type | Purpose |
-|---------|------|---------|
-| `#stoic-reflections` | Text | Daily posts + evening exam threads |
-| `#stoic-discussion` | Text | Adversary debates, virtue polls |
-| `#stoic-commonplace` | Forum | Evergreen entry discussions |
-
-### 4. Collect your IDs
-
-Enable Discord Developer Mode: User Settings > App Settings > Advanced > Developer Mode ON
-
-Then right-click to copy:
-- **Server ID** (right-click server icon)
-- **Channel IDs** (right-click each channel)
-
-### 5. Create D1 databases
+### 3. Create D1 databases
 
 ```bash
-# Development
 wrangler d1 create stoic-db-dev
-
-# Production
 wrangler d1 create stoic-db
 ```
 
-Copy the `database_id` values from each output.
+### 4. Configure wrangler.toml
 
-### 6. Update wrangler.toml
-
-Replace the placeholder database IDs:
+Update the placeholder values in `wrangler.toml`:
 
 ```toml
-# Dev (top-level)
-[[d1_databases]]
-binding = "DB"
-database_name = "stoic-db-dev"
-database_id = "<YOUR_DEV_DB_ID>"    # <-- paste dev ID here
+# Dev database
+database_id = "YOUR_DEV_DB_ID"
 
-# Production
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "stoic-db"
-database_id = "<YOUR_PROD_DB_ID>"   # <-- paste prod ID here
+# Production database
+database_id = "YOUR_PROD_DB_ID"
+
+# Bifrost KV namespace
+id = "YOUR_BIFROST_KV_NAMESPACE_ID"
+
+# Bifrost router URL
+ROUTER_URL = "https://your-bifrost-router.workers.dev"
 ```
 
-### 7. Store secrets in Bifrost KV
-
-All secrets are stored in the shared Bifrost KV namespace. Run these from the bifrost-bridge project directory:
+### 5. Store secrets
 
 ```bash
-cd ~/AntiGH/bifrost-bridge
-
-# Discord secrets (prefix with STOIC_)
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_DISCORD_APP_ID" "<YOUR_APP_ID>" --remote
-
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_DISCORD_PUBLIC_KEY" "<YOUR_PUBLIC_KEY>" --remote
-
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_DISCORD_BOT_TOKEN" "<YOUR_BOT_TOKEN>" --remote
-
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_DISCORD_GUILD_ID" "<YOUR_SERVER_ID>" --remote
-
-# Channel IDs
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_CHANNEL_REFLECTIONS" "<REFLECTIONS_CHANNEL_ID>" --remote
-
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_CHANNEL_DISCUSSION" "<DISCUSSION_CHANNEL_ID>" --remote
-
-npx wrangler kv key put --namespace-id "be16781ec93e4adc8048ba1edee3d10c" \
-  "STOIC_CHANNEL_COMMONPLACE" "<COMMONPLACE_CHANNEL_ID>" --remote
-
-cd ~/AntiGH/daily-stoic-bot
-```
-
-> **Note:** PROXY_API_KEY is already in Bifrost KV from bifrost-bridge setup — no need to add it.
-
-### 8. Set Wrangler secrets
-
-The Worker also needs the Discord public key and app ID as Worker secrets (for signature verification on the hot path):
-
-```bash
-# These are read from env bindings, not KV, for performance
+# As Wrangler secrets (used at runtime for signature verification)
 wrangler secret put DISCORD_PUBLIC_KEY
-# paste your public key when prompted
-
 wrangler secret put DISCORD_APP_ID
-# paste your app ID when prompted
-
 wrangler secret put DISCORD_BOT_TOKEN
-# paste your bot token when prompted
+
+# In Bifrost KV (used by the bot for channel routing, LLM calls, etc.)
+# See the main setup docs for the full list of KV keys
 ```
 
-### 9. Apply database schema and seed entries
+### 6. Apply schema and seed entries
 
 ```bash
-# Apply schema (creates tables)
-npm run migrate
-
-# Seed 366 Daily Stoic entries
-npm run seed
+npm run migrate       # Create tables
+npm run seed          # Seed 366 Daily Stoic entries
 ```
 
-### 10. Deploy
+### 7. Deploy
 
 ```bash
 npm run deploy
 ```
 
-Note the deployed URL (e.g., `https://daily-stoic-bot-dev.mock1ng.workers.dev`).
+### 8. Set Discord Interactions Endpoint
 
-### 11. Set Discord Interactions Endpoint
+In the [Discord Developer Portal](https://discord.com/developers/applications):
 
-1. Go to https://discord.com/developers/applications > your app > General Information
-2. Set **Interactions Endpoint URL** to: `https://daily-stoic-bot-dev.mock1ng.workers.dev/interactions`
-3. Click Save — Discord will verify with a PING (the worker handles this automatically)
+1. Select your application > General Information
+2. Set **Interactions Endpoint URL** to: `https://daily-stoic-bot-dev.<your-account>.workers.dev/interactions`
+3. Save (Discord will verify with a PING)
 
-### 12. Register slash commands
+### 9. Register slash commands
 
 ```bash
-# Set guild ID for the registration script
-export GUILD_ID="<YOUR_SERVER_ID>"
-
+export GUILD_ID="<your-test-server-id>"
 npm run register:dev
 ```
 
-### 13. Verify
+### 10. Verify
 
-- Type `/stoic obstacle I'm stressed about a deadline` in your Discord server
-- Check `https://daily-stoic-bot-dev.mock1ng.workers.dev/health` returns OK
+Type `/stoic obstacle I'm stressed about a deadline` in your Discord server.
 
-## Production deployment
+## Production
 
 ```bash
-# Set prod secrets
 wrangler secret put DISCORD_PUBLIC_KEY --env production
 wrangler secret put DISCORD_APP_ID --env production
 wrangler secret put DISCORD_BOT_TOKEN --env production
 
-# Apply schema + seed to prod DB
 npm run migrate:prod
 npm run seed:prod
-
-# Deploy
 npm run deploy:prod
-
-# Register global commands (takes up to 1 hour to propagate)
-npm run register:prod
-
-# Update Interactions Endpoint URL to prod worker URL
+npm run register:prod   # Global commands take up to 1 hour to propagate
 ```
 
 ## Architecture
@@ -195,7 +142,7 @@ npm run register:prod
 ```
 Discord Server
   |
-  POST /interactions (slash commands, buttons)
+  POST /interactions (slash commands, buttons, modals)
   |
   v
 Cloudflare Worker (daily-stoic-bot)
@@ -214,35 +161,13 @@ Cloudflare Worker (daily-stoic-bot)
   |-- Discord REST API
         Post messages, create threads, polls
 
-Scheduled (cron):
-  07:00 UTC  — Daily entry post to #stoic-reflections
-  21:00 UTC  — Evening examination (private threads)
-  17:00 FRI  — Weekly virtue poll in #stoic-discussion
+Scheduled (cron — hourly, timezone-aware per server):
+  Morning   — Daily entry post to #stoic-reflections
+  Evening   — Evening examination (private threads)
+  Weekly    — Virtue poll in #stoic-discussion
 ```
 
-## Features
-
-| Feature | Command/Trigger | Description |
-|---------|----------------|-------------|
-| Daily Post | Cron 7am UTC | Posts today's Stoic entry with quote + commentary |
-| Evening Examination | Cron 9pm UTC | 3 personalized Socratic questions in private threads |
-| Obstacle Reframe | `/stoic obstacle` | Stoic reframe of your real-life situation |
-| Personal Lens | `/stoic context` | Set persistent context for personalized reflections |
-| Unsent Letter | `/stoic letter` | Private philosophical letter-writing exercise |
-| Philosopher Voice | `/stoic voice` | Choose Epictetus, Seneca, or Marcus Aurelius tone |
-| The Adversary | "Challenge This" button | Strongest objection to the day's teaching |
-| Virtue Poll | Cron Friday 5pm | Weekly community reflection on practiced virtues |
-
-## Development
-
-```bash
-npm run dev          # Local dev server
-npm run check        # TypeScript typecheck
-npm run build        # Full build (typecheck + wrangler dry-run)
-npm run pre-merge    # Lint + test + typecheck + build
-```
-
-## Project structure
+## Project Structure
 
 ```
 src/
@@ -276,3 +201,20 @@ scripts/
   register-commands.mjs     # Discord slash command registration
   parse-entries.py          # Book parser (one-time use)
 ```
+
+## Development
+
+```bash
+npm run dev          # Local dev server
+npm run check        # TypeScript typecheck
+npm run build        # Full build (typecheck + wrangler dry-run)
+npm run pre-merge    # Lint + test + typecheck + build
+```
+
+## Attribution
+
+Content from *The Daily Stoic* by Ryan Holiday and Stephen Hanselman. Visit [DailyStoic.com](https://dailystoic.com/) for more.
+
+## License
+
+[MIT](LICENSE)

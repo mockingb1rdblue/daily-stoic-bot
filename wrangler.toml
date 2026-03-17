@@ -8,21 +8,22 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "stoic-db-dev"
-database_id = "883aee4c-b9c7-484d-b6e7-defba1e20b5c"
+database_id = "YOUR_DEV_DB_ID"
 
 # Bifrost KV (shared with bifrost-bridge for secrets)
 [[kv_namespaces]]
 binding = "BIFROST_KV"
-id = "be16781ec93e4adc8048ba1edee3d10c"
+id = "YOUR_BIFROST_KV_NAMESPACE_ID"
 
-# Service Binding to crypt-core (avoids 1042 Worker-to-Worker fetch issues)
-[[services]]
-binding = "BIFROST_ROUTER"
-service = "crypt-core"
+# Service Binding to Bifrost router (avoids 1042 Worker-to-Worker fetch issues)
+# Uncomment and set to your Bifrost router Worker name:
+# [[services]]
+# binding = "BIFROST_ROUTER"
+# service = "your-bifrost-router"
 
 [vars]
 ENVIRONMENT = "development"
-ROUTER_URL = "https://crypt-core.mock1ng.workers.dev"
+ROUTER_URL = "https://your-bifrost-router.workers.dev"
 
 [observability]
 enabled = true
@@ -39,19 +40,20 @@ name = "daily-stoic-bot"
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "stoic-db"
-database_id = "dd7063bd-ca80-4a91-930a-7fe9939c1575"
+database_id = "YOUR_PROD_DB_ID"
 
 [[env.production.kv_namespaces]]
 binding = "BIFROST_KV"
-id = "be16781ec93e4adc8048ba1edee3d10c"
+id = "YOUR_BIFROST_KV_NAMESPACE_ID"
 
-[[env.production.services]]
-binding = "BIFROST_ROUTER"
-service = "crypt-core"
+# Uncomment and set to your Bifrost router Worker name:
+# [[env.production.services]]
+# binding = "BIFROST_ROUTER"
+# service = "your-bifrost-router"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-ROUTER_URL = "https://crypt-core.mock1ng.workers.dev"
+ROUTER_URL = "https://your-bifrost-router.workers.dev"
 
 [env.production.observability]
 enabled = true

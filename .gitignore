@@ -9,3 +9,8 @@ data/
 *.pdf
 *.epub
 *.txt
+init-plan.md
+wrangler.local.toml
+wrangler.toml.scrubbed
+scripts/deploy-local.sh
+.dev.vars

@@ -78,9 +78,9 @@ Create these channels in your Discord server (or note existing ones):
 **Collect:**
 - `GUILD_ID` — your server ID
 
-## Step 6: Give Me These Values
+## Step 6: Store These Values
 
-Once you have everything, give me these 6 values:
+Once you have everything, you'll need these 7 values:
 
 ```
 DISCORD_APP_ID=<Application ID from Step 1>
@@ -92,11 +92,7 @@ CHANNEL_ID_DISCUSSION=<from Step 4>
 CHANNEL_ID_COMMONPLACE=<from Step 4>
 ```
 
-I will:
-1. Store them in Bifrost KV (prefixed with `STOIC_`) for zero-local-secrets
-2. Configure the Cloudflare Worker with proper bindings
-3. Register slash commands against your server
-4. Deploy and verify
+Store them in Bifrost KV (prefixed with `STOIC_`) and as Wrangler secrets. See the main README for details.
 
 ## Step 7: Set Interactions Endpoint (after deploy)
 
@@ -124,14 +120,12 @@ Cloudflare Worker (daily-stoic-bot)
   |--> Bifrost KV (secrets: bot token, channel IDs)
 ```
 
-## Quick Test (Webhook)
+## Quick Test
 
-Before the bot is deployed, we can test posting to your server using the Bifrost Discord webhook:
+After deploying, test with:
 
 ```bash
-curl -X POST "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL" \
+curl -X POST "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"content": "Daily Stoic Bot test post"}'
 ```
-
-The existing Bifrost webhook posts to the bifrost channel. Once you create the bot, we'll have proper per-channel posting.
