@@ -41,8 +41,10 @@ export async function callBifrost(env: Env, request: BifrostRequest): Promise<Bi
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), BIFROST_TIMEOUT_MS);
 
+	const routerUrl = env.ROUTER_URL || 'https://crypt-core.mock1ng.workers.dev';
+
 	try {
-		const response = await fetch(`${env.ROUTER_URL}/v1/llm/chat`, {
+		const response = await fetch(`${routerUrl}/v1/llm/chat`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${apiKey}`,

@@ -83,8 +83,8 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 		description: [
 			`## ${entry.title}\n`,
 			`*${hookResult.text}*\n`,
-			`>>> *"${quote}"*\n> \n> *— ${entry.quote_source}*`,
-			'',
+			`*"${quote}"*`,
+			`*— ${entry.quote_source}*\n`,
 			commentary,
 		].join('\n'),
 		color: 0x8b7355,
