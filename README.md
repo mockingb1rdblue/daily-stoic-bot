@@ -2,7 +2,7 @@
 
 A Discord bot that posts daily Stoic philosophy entries and facilitates reflection through AI-powered Socratic dialogue.
 
-**[Add to your server](https://discord.com/api/oauth2/authorize?client_id=YOUR_APP_ID&permissions=2419724368&scope=bot%20applications.commands)** (replace `YOUR_APP_ID` with your Discord Application ID)
+**[Add to your server](https://discord.com/api/oauth2/authorize?client_id=1483271790829764729&permissions=2419724368&scope=bot%20applications.commands)**
 
 ## Features
 
