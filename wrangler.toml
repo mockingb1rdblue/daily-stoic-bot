@@ -15,6 +15,11 @@ database_id = "883aee4c-b9c7-484d-b6e7-defba1e20b5c"
 binding = "BIFROST_KV"
 id = "be16781ec93e4adc8048ba1edee3d10c"
 
+# Service Binding to crypt-core (avoids 1042 Worker-to-Worker fetch issues)
+[[services]]
+binding = "BIFROST_ROUTER"
+service = "crypt-core"
+
 [vars]
 ENVIRONMENT = "development"
 ROUTER_URL = "https://crypt-core.mock1ng.workers.dev"
@@ -39,6 +44,10 @@ database_id = "dd7063bd-ca80-4a91-930a-7fe9939c1575"
 [[env.production.kv_namespaces]]
 binding = "BIFROST_KV"
 id = "be16781ec93e4adc8048ba1edee3d10c"
+
+[[env.production.services]]
+binding = "BIFROST_ROUTER"
+service = "crypt-core"
 
 [env.production.vars]
 ENVIRONMENT = "production"

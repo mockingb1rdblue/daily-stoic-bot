@@ -178,7 +178,7 @@ async function processLetterDeferred(
 
 		// Build the self-contained exercise prompt
 		let prompt = `**Today's Letter-Writing Exercise**\n\n`;
-		prompt += `> *"${entry.quote}"*\n> — ${entry.quote_source}\n\n`;
+		prompt += `*"${entry.quote}"*\n*— ${entry.quote_source}*\n\n`;
 		prompt += `**Theme:** ${entry.title}\n\n`;
 		prompt += `You're writing a letter to **${recipient}**. `;
 		prompt += `Using this meditation as a lens, write what needs to be said — `;

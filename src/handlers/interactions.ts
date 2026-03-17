@@ -221,8 +221,8 @@ async function handleCommonplaceButton(
 			name: `${entry.date} \u2014 ${entry.title}`.slice(0, 100),
 			message: {
 				content: [
-					`> *"${entry.quote.slice(0, 300)}${entry.quote.length > 300 ? '...' : ''}"*`,
-					`> \u2014 ${entry.quote_source}`,
+					`*"${entry.quote.slice(0, 300)}${entry.quote.length > 300 ? '...' : ''}"*`,
+					`*— ${entry.quote_source}*`,
 					'',
 					`${entry.commentary.slice(0, 500)}${entry.commentary.length > 500 ? '...' : ''}`,
 					'',

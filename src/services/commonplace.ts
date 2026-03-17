@@ -30,7 +30,7 @@ export async function createWeeklyCommonplaceThread(env: Env, guilds: GuildConfi
 	const entryPreviews = entries
 		.map(
 			(e) =>
-				`**${e.date} — ${e.title}**\n> *"${e.quote.slice(0, 150)}${e.quote.length > 150 ? '...' : ''}"*\n> — ${e.quote_source}`,
+				`**${e.date} — ${e.title}**\n*"${e.quote.slice(0, 150)}${e.quote.length > 150 ? '...' : ''}"*\n*— ${e.quote_source}*`,
 		)
 		.join('\n\n');
 

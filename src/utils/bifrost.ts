@@ -41,25 +41,31 @@ export async function callBifrost(env: Env, request: BifrostRequest): Promise<Bi
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), BIFROST_TIMEOUT_MS);
 
-	const routerUrl = env.ROUTER_URL || 'https://crypt-core.mock1ng.workers.dev';
+	const requestBody = JSON.stringify({
+		messages: [{ role: 'user', content: request.prompt }],
+		model: request.model,
+		taskType: request.taskType ?? 'research',
+		temperature: request.temperature ?? 0.7,
+		maxOutputTokens: request.maxOutputTokens ?? 2048,
+		thinkingBudget: request.thinkingBudget,
+	});
+
+	const requestInit: RequestInit = {
+		method: 'POST',
+		headers: {
+			Authorization: `Bearer ${apiKey}`,
+			'Content-Type': 'application/json',
+		},
+		body: requestBody,
+		signal: controller.signal,
+	};
 
 	try {
-		const response = await fetch(`${routerUrl}/v1/llm/chat`, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${apiKey}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				messages: [{ role: 'user', content: request.prompt }],
-				model: request.model,
-				taskType: request.taskType ?? 'research',
-				temperature: request.temperature ?? 0.7,
-				maxOutputTokens: request.maxOutputTokens ?? 2048,
-				thinkingBudget: request.thinkingBudget,
-			}),
-			signal: controller.signal,
-		});
+		// Use Service Binding (direct in-process call, no network hop, no 1042)
+		// Falls back to HTTP fetch if binding unavailable (local dev)
+		const response = env.BIFROST_ROUTER
+			? await env.BIFROST_ROUTER.fetch('https://crypt-core/v1/llm/chat', requestInit)
+			: await fetch(`${env.ROUTER_URL || 'https://crypt-core.mock1ng.workers.dev'}/v1/llm/chat`, requestInit);
 
 		if (!response.ok) {
 			const errorText = await response.text();
