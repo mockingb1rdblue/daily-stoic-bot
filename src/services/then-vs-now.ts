@@ -40,11 +40,17 @@ Keep the whole thing under 300 words. Markdown formatting for Discord. No hashta
 	});
 
 	const embed = {
-		title: `Then vs. Now: "${entry.title}"`,
-		description: response.result,
-		color: 0x4a6741, // Muted green — growth, contrast
+		author: {
+			name: '🔄 Then vs. Now',
+		},
+		description: `**${entry.title}**\n\n${response.result}`,
+		color: 0x4a6741,
+		fields: [
+			{ name: 'Source', value: entry.quote_source, inline: true },
+			{ name: 'Day', value: `${entry.day_of_year}`, inline: true },
+		],
 		footer: {
-			text: `${entry.quote_source} | Day ${entry.day_of_year}`,
+			text: 'Does the translation hold?',
 		},
 		timestamp: new Date().toISOString(),
 	};

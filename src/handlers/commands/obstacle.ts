@@ -148,12 +148,21 @@ Keep the total response under 300 words. Use Markdown formatting for Discord.`;
 		}
 
 		const embed = {
-			title: `${voice.displayName} on Your Obstacle`,
+			author: {
+				name: `${voice.displayName} on Your Obstacle`,
+			},
 			description: response.result,
 			color: 0x8b7355,
+			...(entry ? {
+				fields: [
+					{ name: "Today's Theme", value: entry.title, inline: true },
+					{ name: 'Source', value: entry.quote_source, inline: true },
+				],
+			} : {}),
 			footer: {
-				text: entry ? `Today's theme: ${entry.title}` : 'The obstacle is the way.',
+				text: 'The obstacle is the way.',
 			},
+			timestamp: new Date().toISOString(),
 		};
 
 		await editOriginalResponse(appId, token, { embeds: [embed] });

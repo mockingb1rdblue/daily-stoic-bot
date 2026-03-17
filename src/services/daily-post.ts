@@ -84,15 +84,22 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 		.replace(/^./, (c) => c.toUpperCase());
 
 	const embed = {
-		title: titleCase,
+		author: {
+			name: `${entry.date} — Day ${entry.day_of_year}`,
+		},
 		description: [
-			`>>> *"${quote}"*\n*— ${entry.quote_source}*`,
+			`## ${titleCase}\n`,
+			`>>> *"${quote}"*\n> \n> *— ${entry.quote_source}*`,
 			'',
 			commentary,
 		].join('\n'),
-		color: 0x8b7355, // Warm brown — stoic earth tones
+		color: 0x8b7355,
+		fields: [
+			{ name: 'Discipline', value: entry.part.replace('THE DISCIPLINE OF ', ''), inline: true },
+			{ name: 'Theme', value: entry.month_theme, inline: true },
+		],
 		footer: {
-			text: `${entry.part} | ${entry.month_theme} | Day ${entry.day_of_year}`,
+			text: 'Tap 🏛️ to mark that you showed up',
 		},
 		timestamp: new Date().toISOString(),
 	};

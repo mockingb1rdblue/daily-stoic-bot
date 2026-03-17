@@ -85,12 +85,18 @@ Rules:
 		});
 
 		const embed = {
-			title: '\u2694\ufe0f The Adversary Speaks',
-			description: response.result,
-			color: 0xcc0000, // Red for the adversary
-			footer: {
-				text: `Challenging: "${entry.title}" | Ideas worth holding survive challenge.`,
+			author: {
+				name: '⚔️ The Adversary',
 			},
+			description: response.result,
+			color: 0x8b2500, // Deep rust red
+			fields: [
+				{ name: 'Challenging', value: entry.title, inline: true },
+			],
+			footer: {
+				text: 'Ideas worth holding survive challenge.',
+			},
+			timestamp: new Date().toISOString(),
 		};
 
 		await editOriginalResponse(appId, token, { embeds: [embed] });

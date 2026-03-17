@@ -14,46 +14,66 @@ export async function handleHelp(
 	const guildId = interaction.guild_id as string;
 	const config = guildId ? await getGuildConfig(env.DB, guildId) : null;
 
-	const scheduleInfo = config
-		? `\n**Schedule** (${config.timezone_label}):\nMorning post: ${config.morning_hour_utc}:00 UTC | Evening exam: ${config.evening_hour_utc}:00 UTC | Friday poll: ${config.poll_hour_utc}:00 UTC`
-		: '\n*Not set up yet — run `/stoic setup` to get started.*';
+	const statusLine = config
+		? `Active — ${config.timezone_label}`
+		: '⚠️ Not set up — run `/stoic setup`';
 
-	const embed = {
-		title: 'Daily Stoic Bot',
-		description: [
-			'366 days of Stoic philosophy. One entry per day. No streaks, no leaderboards — just honest reflection.\n',
-			'**Daily Features**',
-			'Each morning the bot posts the day\'s Stoic entry with a quote and commentary. Tap 🏛️ to mark that you showed up (private streak tracking). Three buttons on each post:\n',
-			'> ⚔️ **Challenge This** — The Adversary generates the strongest objection to today\'s teaching',
-			'> 💭 **Reflect** — Quick modal to jot down what landed for you',
-			'> 📖 **Save to Commonplace** — Creates a discussion thread in the forum\n',
-			'Each evening, users with a personal context get 3 Socratic questions in a private thread.\n',
-			'**Commands**',
-			'`/stoic obstacle` — Describe what you\'re wrestling with. Get a Stoic reframe + one Socratic question.',
-			'`/stoic context` — Set your personal lens ("I\'m a nurse", "going through a divorce"). Makes reflections more relevant.',
-			'`/stoic letter` — Write an unsent letter to someone using today\'s entry as a lens. Private exercise.',
-			'`/stoic voice` — Choose your philosopher: Epictetus (blunt), Seneca (eloquent), Marcus Aurelius (introspective).\n',
-			'**Admin Commands**',
-			'`/stoic setup` — Create the Daily Stoic channels in this server. Pick your timezone.',
-			'`/stoic cleanup` — Remove all Daily Stoic channels and config.',
-			'`/stoic schedule` — Change morning/evening posting times.',
-			'`/stoic trigger` — Manually fire any scheduled event (morning post, evening exam, poll, etc.).\n',
-			'**Weekly**',
-			'Fridays: virtue poll (Courage, Wisdom, Justice, Temperance) + "Then vs. Now" modern adaptation.',
-			'Mondays: new commonplace book thread with the week\'s entries.',
-			scheduleInfo,
-		].join('\n'),
-		color: 0x8b7355,
-		footer: {
-			text: '"Waste no more time arguing about what a good person should be. Be one." — Marcus Aurelius',
+	const embeds = [
+		{
+			author: { name: 'Daily Stoic Bot' },
+			description: '366 days of Stoic philosophy. One entry per day.\nNo streaks, no leaderboards — just honest reflection.',
+			color: 0x8b7355,
+			fields: [
+				{ name: 'Status', value: statusLine, inline: true },
+				...(config ? [
+					{ name: 'Morning', value: `${config.morning_hour_utc}:00 UTC`, inline: true },
+					{ name: 'Evening', value: `${config.evening_hour_utc}:00 UTC`, inline: true },
+				] : []),
+			],
 		},
-	};
+		{
+			description: [
+				'## Daily Features',
+				'Each morning: Stoic entry with quote + commentary + LLM-generated hook.',
+				'Tap 🏛️ on the post to track your streak (private — only you see milestones).\n',
+				'**Buttons on each post:**',
+				'⚔️ Challenge This — philosophical counter-argument',
+				'💭 Reflect — quick modal to capture what landed',
+				'📖 Save to Commonplace — creates a forum thread\n',
+				'Each evening: 3 personalized Socratic questions in a private thread.',
+			].join('\n'),
+			color: 0x8b7355,
+		},
+		{
+			description: '## Commands',
+			color: 0x8b7355,
+			fields: [
+				{ name: '`/stoic obstacle`', value: 'Stoic reframe for what you\'re wrestling with', inline: false },
+				{ name: '`/stoic context`', value: 'Set your personal lens for tailored reflections', inline: false },
+				{ name: '`/stoic letter`', value: 'Write an unsent letter using today\'s entry', inline: false },
+				{ name: '`/stoic voice`', value: 'Epictetus (blunt) · Seneca (eloquent) · Marcus (introspective)', inline: false },
+			],
+		},
+		{
+			description: '## Admin',
+			color: 0x8b7355,
+			fields: [
+				{ name: '`/stoic setup`', value: 'Create channels + pick timezone', inline: true },
+				{ name: '`/stoic cleanup`', value: 'Remove everything', inline: true },
+				{ name: '`/stoic schedule`', value: 'Change posting times', inline: true },
+				{ name: '`/stoic trigger`', value: 'Fire any event manually', inline: true },
+			],
+			footer: {
+				text: '"Waste no more time arguing about what a good person should be. Be one." — Marcus Aurelius',
+			},
+		},
+	];
 
 	return jsonResponse({
 		type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 		data: {
-			embeds: [embed],
-			flags: 64, // Ephemeral
+			embeds,
+			flags: 64,
 		},
 	});
 }
