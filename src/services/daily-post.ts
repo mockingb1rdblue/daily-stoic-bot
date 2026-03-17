@@ -34,7 +34,7 @@ Examples of the right tone:
 - "today's entry is going to personally attack at least 3 of us"
 
 Write ONLY the one-liner. No quotes around it. No preamble.`,
-			taskType: 'stoic-hook',
+			taskType: 'research',
 			temperature: 0.95,
 			maxOutputTokens: 100,
 			thinkingBudget: 0,

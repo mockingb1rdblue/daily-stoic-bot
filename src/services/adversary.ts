@@ -78,7 +78,7 @@ Rules:
 
 		const response = await callBifrost(env, {
 			prompt,
-			taskType: 'stoic-adversary',
+			taskType: 'research',
 			temperature: 0.9,
 			maxOutputTokens: 1024,
 			thinkingBudget: 512,

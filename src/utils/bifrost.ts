@@ -12,6 +12,13 @@ export interface BifrostRequest {
 	thinkingBudget?: number;
 }
 
+interface BifrostRawResponse {
+	content: string;
+	usage: { promptTokens: number; completionTokens: number; totalTokens: number };
+	model: string;
+	provider: string;
+}
+
 export interface BifrostResponse {
 	result: string;
 	tokensUsed: number;
@@ -42,9 +49,9 @@ export async function callBifrost(env: Env, request: BifrostRequest): Promise<Bi
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify({
-				prompt: request.prompt,
+				messages: [{ role: 'user', content: request.prompt }],
 				model: request.model,
-				taskType: request.taskType ?? 'stoic-bot',
+				taskType: request.taskType ?? 'research',
 				temperature: request.temperature ?? 0.7,
 				maxOutputTokens: request.maxOutputTokens ?? 2048,
 				thinkingBudget: request.thinkingBudget,
@@ -63,7 +70,14 @@ export async function callBifrost(env: Env, request: BifrostRequest): Promise<Bi
 			throw new Error(`Bifrost API error ${response.status}: ${errorText}`);
 		}
 
-		const data = (await response.json()) as BifrostResponse;
+		const raw = (await response.json()) as BifrostRawResponse;
+
+		const data: BifrostResponse = {
+			result: raw.content,
+			tokensUsed: raw.usage?.totalTokens ?? 0,
+			provider: raw.provider,
+			modelId: raw.model,
+		};
 
 		console.log({
 			event: 'bifrost_call_complete',

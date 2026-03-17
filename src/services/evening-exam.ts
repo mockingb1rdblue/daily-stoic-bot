@@ -130,7 +130,7 @@ Do not add preamble or conclusion — just the 3 questions.`;
 
 	const response = await callBifrost(env, {
 		prompt,
-		taskType: 'stoic-evening-exam',
+		taskType: 'context-analysis',
 		temperature: 0.8,
 		maxOutputTokens: 512,
 		thinkingBudget: 1024,

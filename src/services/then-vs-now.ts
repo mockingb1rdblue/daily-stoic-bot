@@ -33,7 +33,7 @@ Write a modern adaptation in two parts:
 End with ONE question: "Does the translation hold? What does modern life make harder or easier?"
 
 Keep the whole thing under 300 words. Markdown formatting for Discord. No hashtags, no self-help clichés.`,
-		taskType: 'stoic-then-vs-now',
+		taskType: 'research',
 		temperature: 0.85,
 		maxOutputTokens: 1024,
 		thinkingBudget: 512,

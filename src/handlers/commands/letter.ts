@@ -56,7 +56,7 @@ Examples of the right tone:
 - "What would you do differently today if you genuinely believed that worry was optional?"
 - "Who are you performing your frustration for, and what would happen if you stopped?"
 - "If you already know the right thing to do, what exactly are you waiting for?"`,
-		taskType: 'stoic-letter-question',
+		taskType: 'context-analysis',
 		temperature: 0.9,
 		maxOutputTokens: 100,
 		thinkingBudget: 512,

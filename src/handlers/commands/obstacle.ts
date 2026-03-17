@@ -124,7 +124,7 @@ Keep the total response under 300 words. Use Markdown formatting for Discord.`;
 
 		const response = await callBifrost(env, {
 			prompt,
-			taskType: 'stoic-obstacle',
+			taskType: 'context-analysis',
 			temperature: 0.8,
 			maxOutputTokens: 1024,
 			thinkingBudget: 1024,
