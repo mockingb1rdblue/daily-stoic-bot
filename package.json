@@ -1,0 +1,39 @@
+{
+  "name": "daily-stoic-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:prod": "wrangler deploy --env production",
+    "build": "npm run check && wrangler deploy --dry-run",
+    "check": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate": "wrangler d1 execute stoic-db --file=schema.sql --remote",
+    "migrate:prod": "wrangler d1 execute stoic-db --file=schema.sql --remote --env production",
+    "seed": "wrangler d1 execute stoic-db --file=migrations/001-seed-entries.sql --remote",
+    "seed:prod": "wrangler d1 execute stoic-db --file=migrations/001-seed-entries.sql --remote --env production",
+    "register:dev": "node scripts/register-commands.mjs development",
+    "register:prod": "node scripts/register-commands.mjs production",
+    "types": "wrangler types",
+    "pre-merge": "npm run lint && npm run test && npm run check && npm run build"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260316.1",
+    "@types/node": "^25.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^10.0.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18",
+    "wrangler": "^4.70.0"
+  },
+  "dependencies": {
+    "discord-interactions": "^4.1.0"
+  }
+}

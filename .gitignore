@@ -1,5 +1,11 @@
 node_modules
 .env
+.dev.vars
 .gemini
 dist
 .wrangler
+sources/
+data/
+*.pdf
+*.epub
+*.txt

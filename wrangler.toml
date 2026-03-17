@@ -1,0 +1,52 @@
+name = "daily-stoic-bot-dev"
+main = "src/index.ts"
+workers_dev = true
+compatibility_date = "2026-03-16"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "stoic-db-dev"
+database_id = "883aee4c-b9c7-484d-b6e7-defba1e20b5c"
+
+# Bifrost KV (shared with bifrost-bridge for secrets)
+[[kv_namespaces]]
+binding = "BIFROST_KV"
+id = "be16781ec93e4adc8048ba1edee3d10c"
+
+[vars]
+ENVIRONMENT = "development"
+ROUTER_URL = "https://crypt-core.mock1ng.workers.dev"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+# Morning post 7am UTC, Evening exam 9pm UTC, Weekly poll Friday 5pm UTC
+[triggers]
+crons = ["0 * * * *"]
+
+# Production
+[env.production]
+name = "daily-stoic-bot"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "stoic-db"
+database_id = "dd7063bd-ca80-4a91-930a-7fe9939c1575"
+
+[[env.production.kv_namespaces]]
+binding = "BIFROST_KV"
+id = "be16781ec93e4adc8048ba1edee3d10c"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+ROUTER_URL = "https://crypt-core.mock1ng.workers.dev"
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 1
+
+[env.production.triggers]
+crons = ["0 * * * *"]
