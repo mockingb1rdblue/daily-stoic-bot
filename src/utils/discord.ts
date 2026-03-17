@@ -1,6 +1,6 @@
 /**
  * Discord REST API helper functions.
- * Bot token is stored in Bifrost KV for secure secret management.
+ * Bot token is stored in KV for secure secret management.
  */
 
 const DISCORD_API_BASE = 'https://discord.com/api/v10';
@@ -25,7 +25,7 @@ interface DiscordThread {
 
 /**
  * Base function for Discord REST API calls.
- * Reads the bot token from Bifrost KV on each call.
+ * Reads the bot token from KV on each call.
  */
 export async function discordApi(
 	env: Env,
@@ -33,7 +33,7 @@ export async function discordApi(
 	method = 'GET',
 	body?: unknown,
 ): Promise<unknown> {
-	const botToken = await env.BIFROST_KV.get('STOIC_DISCORD_BOT_TOKEN');
+	const botToken = await env.SECRETS_KV.get('STOIC_DISCORD_BOT_TOKEN');
 	if (!botToken) {
 		throw new Error('STOIC_DISCORD_BOT_TOKEN not found in KV');
 	}

@@ -5,7 +5,7 @@
  */
 
 import { InteractionResponseType } from 'discord-interactions';
-import { callBifrost } from '../utils/bifrost.js';
+import { callLLM } from '../utils/llm.js';
 import { getEntryByDayOfYear } from '../db/entries.js';
 import { editOriginalResponse } from '../utils/discord.js';
 import { jsonResponse } from '../utils/json.js';
@@ -76,7 +76,7 @@ Rules:
 - Keep your response under 250 words
 - Use Markdown formatting for Discord`;
 
-		const response = await callBifrost(env, {
+		const response = await callLLM(env, {
 			prompt,
 			taskType: 'research',
 			temperature: 0.9,

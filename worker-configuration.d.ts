@@ -1,7 +1,7 @@
 interface Env {
     DB: D1Database;
-    BIFROST_KV: KVNamespace;
-    BIFROST_ROUTER: Fetcher;
+    SECRETS_KV: KVNamespace;
+    LLM_ROUTER: Fetcher;
     ENVIRONMENT: string;
     ROUTER_URL: string;
     DISCORD_PUBLIC_KEY: string;

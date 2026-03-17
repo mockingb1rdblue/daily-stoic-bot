@@ -92,7 +92,7 @@ Update the placeholder values:
 
 ```toml
 database_id = "YOUR_DEV_DB_ID"           # from step 3
-id = "YOUR_BIFROST_KV_NAMESPACE_ID"      # your KV namespace for secrets
+id = "YOUR_KV_NAMESPACE_ID"              # your KV namespace for secrets
 ROUTER_URL = "https://your-llm-api.com"  # any OpenAI-compatible endpoint
 ```
 
@@ -205,7 +205,7 @@ src/
     guilds.ts               # Per-server config + schedule queries
     users.ts                # User context + preference queries
   utils/
-    bifrost.ts              # LLM client (OpenAI-compatible)
+    llm.ts                  # LLM client (OpenAI-compatible)
     discord.ts              # Discord REST helpers
     json.ts                 # Response utilities
     verify.ts               # Discord signature verification

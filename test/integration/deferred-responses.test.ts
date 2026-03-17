@@ -79,7 +79,7 @@ describe('deferred vs immediate classification', () => {
 	const immediateCommands = ['context', 'voice', 'setup', 'schedule', 'cleanup'];
 
 	it('LLM-dependent commands use deferred pattern', () => {
-		// All commands that call callBifrost use type 5
+		// All commands that call callLLM use type 5
 		expect(deferredCommands.length).toBe(4);
 	});
 

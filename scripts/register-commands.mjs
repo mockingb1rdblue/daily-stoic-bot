@@ -181,12 +181,12 @@ const STOIC_COMMAND = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BIFROST_KV_NAMESPACE_ID = 'YOUR_BIFROST_KV_NAMESPACE_ID';
-// Set this to the path where your bifrost-bridge project lives:
-const BIFROST_PROJECT_DIR = '/path/to/your/bifrost-bridge';
+const KV_NAMESPACE_ID = 'YOUR_KV_NAMESPACE_ID';
+// Set this to the path of the project that owns the KV namespace:
+const KV_PROJECT_DIR = '/path/to/your/kv-project';
 
 /**
- * Read a value from Bifrost KV via wrangler CLI.
+ * Read a value from KV via wrangler CLI.
  * Returns null when the key is missing or wrangler is unavailable.
  *
  * Note: execSync is used intentionally here with hardcoded key names (no user
@@ -196,7 +196,7 @@ const BIFROST_PROJECT_DIR = '/path/to/your/bifrost-bridge';
 function getKVSecret(key) {
     try {
         return execSync(
-            `cd ${BIFROST_PROJECT_DIR} && npx wrangler kv key get --namespace-id "${BIFROST_KV_NAMESPACE_ID}" "${key}" --remote 2>/dev/null`,
+            `cd ${KV_PROJECT_DIR} && npx wrangler kv key get --namespace-id "${KV_NAMESPACE_ID}" "${key}" --remote 2>/dev/null`,
             { encoding: 'utf8' }
         ).trim();
     } catch {
@@ -211,7 +211,7 @@ function resolveSecret(envName, kvKey) {
     const envVal = process.env[envName];
     if (envVal) return envVal;
 
-    console.log(`  ${envName} not in env, trying Bifrost KV key "${kvKey}"...`);
+    console.log(`  ${envName} not in env, trying KV key "${kvKey}"...`);
     const kvVal = getKVSecret(kvKey);
     if (kvVal) {
         console.log(`  -> found in KV`);
@@ -243,7 +243,7 @@ async function main() {
         console.error('Missing required credentials:');
         if (!appId) console.error('  - DISCORD_APP_ID');
         if (!botToken) console.error('  - DISCORD_BOT_TOKEN');
-        console.error('\nProvide them as env vars or ensure they exist in Bifrost KV.');
+        console.error('\nProvide them as env vars or ensure they exist in KV.');
         process.exit(1);
     }
 
@@ -255,7 +255,7 @@ async function main() {
         const guildId = resolveSecret('GUILD_ID', 'STOIC_DISCORD_GUILD_ID');
         if (!guildId) {
             console.error('Missing GUILD_ID — required for guild-scoped (development) registration.');
-            console.error('Provide it as an env var or store it in Bifrost KV as STOIC_DISCORD_GUILD_ID.');
+            console.error('Provide it as an env var or store it in KV as STOIC_DISCORD_GUILD_ID.');
             process.exit(1);
         }
         url = `https://discord.com/api/v10/applications/${appId}/guilds/${guildId}/commands`;

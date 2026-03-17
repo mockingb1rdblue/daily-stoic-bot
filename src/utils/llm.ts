@@ -1,7 +1,7 @@
 /**
  * LLM client — works with any OpenAI-compatible API.
  *
- * Supports: Bifrost Bridge, OpenRouter, OpenAI, Anthropic (via proxy),
+ * Supports: OpenRouter, OpenAI, Anthropic (via proxy), Bifrost Bridge,
  * Ollama, or any endpoint accepting /v1/chat/completions format.
  *
  * Configure via:
@@ -34,8 +34,8 @@ interface OpenAIResponse {
 	model: string;
 }
 
-/** Bifrost Bridge response (slightly different shape) */
-interface BifrostResponse {
+/** Alternative LLM response format (e.g. Bifrost Bridge) */
+interface AlternativeLLMResponse {
 	content: string;
 	usage: { promptTokens: number; completionTokens: number; totalTokens: number };
 	model: string;
@@ -45,25 +45,25 @@ interface BifrostResponse {
 const LLM_TIMEOUT_MS = 60_000;
 
 /**
- * Detect whether a response is Bifrost format or standard OpenAI format.
+ * Detect whether a response is an alternative format or standard OpenAI format.
  */
-function isBifrostResponse(data: unknown): data is BifrostResponse {
+function isAlternativeResponse(data: unknown): data is AlternativeLLMResponse {
 	return typeof data === 'object' && data !== null && 'content' in data && !('choices' in data);
 }
 
 /**
  * Call the configured LLM provider.
- * Automatically detects Bifrost vs OpenAI response format.
+ * Automatically detects alternative vs OpenAI response format.
  */
-export async function callBifrost(env: Env, request: LLMRequest): Promise<LLMResponse> {
-	const apiKey = await env.BIFROST_KV.get('PROXY_API_KEY');
+export async function callLLM(env: Env, request: LLMRequest): Promise<LLMResponse> {
+	const apiKey = await env.SECRETS_KV.get('PROXY_API_KEY');
 	if (!apiKey) {
 		throw new Error('PROXY_API_KEY not found in KV');
 	}
 
 	// Allow overriding the endpoint path and model via KV
-	const endpointOverride = await env.BIFROST_KV.get('LLM_ENDPOINT');
-	const modelOverride = await env.BIFROST_KV.get('LLM_MODEL');
+	const endpointOverride = await env.SECRETS_KV.get('LLM_ENDPOINT');
+	const modelOverride = await env.SECRETS_KV.get('LLM_MODEL');
 
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), LLM_TIMEOUT_MS);
@@ -76,7 +76,7 @@ export async function callBifrost(env: Env, request: LLMRequest): Promise<LLMRes
 		// OpenAI-compatible fields
 		max_tokens: request.maxOutputTokens ?? 2048,
 		temperature: request.temperature ?? 0.7,
-		// Bifrost-specific fields (ignored by standard OpenAI endpoints)
+		// Extended fields (ignored by standard OpenAI endpoints)
 		taskType: request.taskType ?? 'research',
 		maxOutputTokens: request.maxOutputTokens ?? 2048,
 		thinkingBudget: request.thinkingBudget,
@@ -93,20 +93,20 @@ export async function callBifrost(env: Env, request: LLMRequest): Promise<LLMRes
 	};
 
 	// Default endpoint paths
-	const bifrostPath = '/v1/llm/chat';
+	const altPath = '/v1/llm/chat';
 	const openaiPath = '/v1/chat/completions';
-	const endpoint = endpointOverride ?? bifrostPath;
+	const endpoint = endpointOverride ?? altPath;
 
 	try {
-		// Use Service Binding if available (Bifrost Worker-to-Worker, zero network hop)
+		// Use Service Binding if available (Worker-to-Worker, zero network hop)
 		// Otherwise use HTTP fetch to ROUTER_URL
-		const response = env.BIFROST_ROUTER
-			? await env.BIFROST_ROUTER.fetch(`https://internal${endpoint}`, requestInit)
+		const response = env.LLM_ROUTER
+			? await env.LLM_ROUTER.fetch(`https://internal${endpoint}`, requestInit)
 			: await fetch(`${env.ROUTER_URL || ''}${endpoint}`, requestInit);
 
 		if (!response.ok) {
-			// If Bifrost endpoint failed, try OpenAI-compatible path as fallback
-			if (endpoint === bifrostPath && !env.BIFROST_ROUTER) {
+			// If alternative endpoint failed, try OpenAI-compatible path as fallback
+			if (endpoint === altPath && !env.LLM_ROUTER) {
 				const fallbackResponse = await fetch(
 					`${env.ROUTER_URL || ''}${openaiPath}`,
 					requestInit,
@@ -138,10 +138,10 @@ export async function callBifrost(env: Env, request: LLMRequest): Promise<LLMRes
 }
 
 /**
- * Parse LLM response — handles both Bifrost and OpenAI formats.
+ * Parse LLM response — handles both alternative and OpenAI formats.
  */
 function parseResponse(raw: unknown): LLMResponse {
-	if (isBifrostResponse(raw)) {
+	if (isAlternativeResponse(raw)) {
 		return {
 			result: raw.content,
 			tokensUsed: raw.usage?.totalTokens ?? 0,
@@ -160,6 +160,7 @@ function parseResponse(raw: unknown): LLMResponse {
 	};
 }
 
-// Re-export with original names for backward compatibility
+// Re-export with original name for backward compatibility
+export { callLLM as callBifrost };
 export type BifrostRequest = LLMRequest;
 export type { LLMResponse as BifrostResponse };

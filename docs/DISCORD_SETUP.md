@@ -92,7 +92,7 @@ CHANNEL_ID_DISCUSSION=<from Step 4>
 CHANNEL_ID_COMMONPLACE=<from Step 4>
 ```
 
-Store them in Bifrost KV (prefixed with `STOIC_`) and as Wrangler secrets. See the main README for details.
+Store them in KV (prefixed with `STOIC_`) and as Wrangler secrets. See the main README for details.
 
 ## Step 7: Set Interactions Endpoint (after deploy)
 
@@ -115,9 +115,9 @@ Cloudflare Worker (daily-stoic-bot)
   |-- scheduled()         <- Cron triggers for daily posts + evening exam
   |
   |--> D1 (entries, user_contexts, responses)
-  |--> Bifrost /v1/llm/chat (Sonar/Gemini/Claude for AI features)
+  |--> LLM Provider (any OpenAI-compatible API for AI features)
   |--> Discord REST API (post messages, create threads)
-  |--> Bifrost KV (secrets: bot token, channel IDs)
+  |--> KV Store (secrets: bot token, API keys)
 ```
 
 ## Quick Test

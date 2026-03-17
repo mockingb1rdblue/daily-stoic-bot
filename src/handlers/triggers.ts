@@ -1,6 +1,6 @@
 /**
  * Manual trigger endpoints for firing scheduled events on demand.
- * Authenticated via PROXY_API_KEY Bearer token from Bifrost KV.
+ * Authenticated via PROXY_API_KEY Bearer token from KV store.
  */
 
 import { jsonResponse, errorResponse } from '../utils/json.js';
@@ -18,7 +18,7 @@ async function verifyTriggerAuth(request: Request, env: Env): Promise<boolean> {
 	const authHeader = request.headers.get('Authorization');
 	if (!authHeader?.startsWith('Bearer ')) return false;
 	const token = authHeader.slice(7);
-	const apiKey = await env.BIFROST_KV.get('PROXY_API_KEY');
+	const apiKey = await env.SECRETS_KV.get('PROXY_API_KEY');
 	return token === apiKey;
 }
 

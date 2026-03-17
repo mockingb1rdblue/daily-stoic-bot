@@ -5,7 +5,7 @@
 
 import { getTodaysEntry, type StoicEntry } from '../db/entries.js';
 import { type GuildConfig } from '../db/guilds.js';
-import { callBifrost } from '../utils/bifrost.js';
+import { callLLM } from '../utils/llm.js';
 import { addReaction, postMessage } from '../utils/discord.js';
 
 interface HookResult {
@@ -15,13 +15,13 @@ interface HookResult {
 }
 
 /**
- * Generate a casual one-line hook for today's entry via Bifrost LLM.
+ * Generate a casual one-line hook for today's entry via LLM.
  * Tone: smart friend who read ahead and wants to get your attention.
  * Returns the hook text plus model metadata for Grimoire reward tracking.
  */
 async function generateHook(env: Env, entry: StoicEntry): Promise<HookResult> {
 	try {
-		const response = await callBifrost(env, {
+		const response = await callLLM(env, {
 			prompt: `You're texting a friend about a philosophy passage you just read. Write ONE casual sentence that makes them want to read it too. No hashtags, no emojis, no self-help speak.
 
 The passage is about: "${entry.title}"
@@ -137,8 +137,8 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 				components,
 			});
 
-			// Store the daily message ID per guild in KV for evening exam + Grimoire reward tracking
-			await env.BIFROST_KV.put(
+			// Store the daily message ID per guild in KV for evening exam + reward tracking
+			await env.SECRETS_KV.put(
 				`STOIC_DAILY_MSG_${guild.guild_id}`,
 				JSON.stringify({
 					messageId: message.id,

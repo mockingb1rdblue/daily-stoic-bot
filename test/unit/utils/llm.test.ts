@@ -1,22 +1,22 @@
 /**
- * Unit tests for Bifrost LLM client types and configuration.
+ * Unit tests for LLM client types and configuration.
  * Tests the interface contract and timeout configuration.
  */
 
 import { describe, it, expect } from 'vitest';
-import type { BifrostRequest, BifrostResponse } from '../../../src/utils/bifrost.js';
+import type { LLMRequest, LLMResponse } from '../../../src/utils/llm.js';
 
-// Replicate the timeout constant from bifrost.ts
-const BIFROST_TIMEOUT_MS = 60_000;
+// Replicate the timeout constant from llm.ts
+const LLM_TIMEOUT_MS = 60_000;
 
-describe('BifrostRequest interface', () => {
+describe('LLMRequest interface', () => {
 	it('requires prompt field', () => {
-		const request: BifrostRequest = { prompt: 'test' };
+		const request: LLMRequest = { prompt: 'test' };
 		expect(request.prompt).toBe('test');
 	});
 
 	it('accepts all optional fields', () => {
-		const request: BifrostRequest = {
+		const request: LLMRequest = {
 			prompt: 'test prompt',
 			model: 'gpt-4',
 			taskType: 'stoic-obstacle',
@@ -33,7 +33,7 @@ describe('BifrostRequest interface', () => {
 	});
 
 	it('thinkingBudget can be 0 (disable thinking)', () => {
-		const request: BifrostRequest = {
+		const request: LLMRequest = {
 			prompt: 'test',
 			thinkingBudget: 0,
 		};
@@ -41,7 +41,7 @@ describe('BifrostRequest interface', () => {
 	});
 
 	it('all optional fields can be undefined', () => {
-		const request: BifrostRequest = { prompt: 'just a prompt' };
+		const request: LLMRequest = { prompt: 'just a prompt' };
 		expect(request.model).toBeUndefined();
 		expect(request.taskType).toBeUndefined();
 		expect(request.temperature).toBeUndefined();
@@ -50,9 +50,9 @@ describe('BifrostRequest interface', () => {
 	});
 });
 
-describe('BifrostResponse interface', () => {
+describe('LLMResponse interface', () => {
 	it('has all required fields', () => {
-		const response: BifrostResponse = {
+		const response: LLMResponse = {
 			result: 'LLM output text',
 			tokensUsed: 150,
 			provider: 'openai',
@@ -65,27 +65,27 @@ describe('BifrostResponse interface', () => {
 	});
 });
 
-describe('Bifrost timeout configuration', () => {
+describe('LLM timeout configuration', () => {
 	it('timeout is 60 seconds', () => {
-		expect(BIFROST_TIMEOUT_MS).toBe(60_000);
+		expect(LLM_TIMEOUT_MS).toBe(60_000);
 	});
 
 	it('timeout is at least 30 seconds (reasonable for LLM calls)', () => {
-		expect(BIFROST_TIMEOUT_MS).toBeGreaterThanOrEqual(30_000);
+		expect(LLM_TIMEOUT_MS).toBeGreaterThanOrEqual(30_000);
 	});
 
 	it('timeout is at most 120 seconds (reasonable upper bound)', () => {
-		expect(BIFROST_TIMEOUT_MS).toBeLessThanOrEqual(120_000);
+		expect(LLM_TIMEOUT_MS).toBeLessThanOrEqual(120_000);
 	});
 });
 
-describe('Bifrost request body construction', () => {
+describe('LLM request body construction', () => {
 	it('includes thinkingBudget in the body when provided', () => {
-		const request: BifrostRequest = {
+		const request: LLMRequest = {
 			prompt: 'test',
 			thinkingBudget: 1024,
 		};
-		// Replicate what callBifrost sends
+		// Replicate what callLLM sends
 		const body = {
 			prompt: request.prompt,
 			model: request.model,
@@ -101,7 +101,7 @@ describe('Bifrost request body construction', () => {
 	});
 
 	it('defaults taskType to stoic-bot when not provided', () => {
-		const request: BifrostRequest = { prompt: 'test' };
+		const request: LLMRequest = { prompt: 'test' };
 		const body = {
 			taskType: request.taskType ?? 'stoic-bot',
 		};
@@ -109,7 +109,7 @@ describe('Bifrost request body construction', () => {
 	});
 
 	it('defaults temperature to 0.7 when not provided', () => {
-		const request: BifrostRequest = { prompt: 'test' };
+		const request: LLMRequest = { prompt: 'test' };
 		const body = {
 			temperature: request.temperature ?? 0.7,
 		};
@@ -117,7 +117,7 @@ describe('Bifrost request body construction', () => {
 	});
 
 	it('defaults maxOutputTokens to 2048 when not provided', () => {
-		const request: BifrostRequest = { prompt: 'test' };
+		const request: LLMRequest = { prompt: 'test' };
 		const body = {
 			maxOutputTokens: request.maxOutputTokens ?? 2048,
 		};

@@ -10,26 +10,25 @@ binding = "DB"
 database_name = "stoic-db-dev"
 database_id = "YOUR_DEV_DB_ID"
 
-# Bifrost KV (shared with bifrost-bridge for secrets)
+# KV namespace for secrets (API keys, bot tokens)
 [[kv_namespaces]]
-binding = "BIFROST_KV"
-id = "YOUR_BIFROST_KV_NAMESPACE_ID"
+binding = "SECRETS_KV"
+id = "YOUR_KV_NAMESPACE_ID"
 
-# Service Binding to Bifrost router (avoids 1042 Worker-to-Worker fetch issues)
-# Uncomment and set to your Bifrost router Worker name:
+# Service Binding to your LLM router Worker (optional, avoids Worker-to-Worker fetch issues)
+# Uncomment and set to your LLM router Worker name:
 # [[services]]
-# binding = "BIFROST_ROUTER"
-# service = "your-bifrost-router"
+# binding = "LLM_ROUTER"
+# service = "your-llm-worker"
 
 [vars]
 ENVIRONMENT = "development"
-ROUTER_URL = "https://your-bifrost-router.workers.dev"
+ROUTER_URL = "https://your-llm-provider.workers.dev"
 
 [observability]
 enabled = true
 head_sampling_rate = 1
 
-# Morning post 7am UTC, Evening exam 9pm UTC, Weekly poll Friday 5pm UTC
 [triggers]
 crons = ["0 * * * *"]
 
@@ -43,17 +42,17 @@ database_name = "stoic-db"
 database_id = "YOUR_PROD_DB_ID"
 
 [[env.production.kv_namespaces]]
-binding = "BIFROST_KV"
-id = "YOUR_BIFROST_KV_NAMESPACE_ID"
+binding = "SECRETS_KV"
+id = "YOUR_KV_NAMESPACE_ID"
 
-# Uncomment and set to your Bifrost router Worker name:
+# Uncomment and set to your LLM router Worker name:
 # [[env.production.services]]
-# binding = "BIFROST_ROUTER"
-# service = "your-bifrost-router"
+# binding = "LLM_ROUTER"
+# service = "your-llm-worker"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-ROUTER_URL = "https://your-bifrost-router.workers.dev"
+ROUTER_URL = "https://your-llm-provider.workers.dev"
 
 [env.production.observability]
 enabled = true

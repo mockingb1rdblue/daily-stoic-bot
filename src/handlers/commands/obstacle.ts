@@ -5,7 +5,7 @@
  */
 
 import { InteractionResponseType } from 'discord-interactions';
-import { callBifrost } from '../../utils/bifrost.js';
+import { callLLM } from '../../utils/llm.js';
 import { getTodaysEntry } from '../../db/entries.js';
 import { getUserContext, getUserPreferredVoice } from '../../db/users.js';
 import { getVoice } from '../../services/voices.js';
@@ -122,7 +122,7 @@ async function processObstacleDeferred(
 
 Keep the total response under 300 words. Use Markdown formatting for Discord.`;
 
-		const response = await callBifrost(env, {
+		const response = await callLLM(env, {
 			prompt,
 			taskType: 'context-analysis',
 			temperature: 0.8,

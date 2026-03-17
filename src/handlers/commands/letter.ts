@@ -2,14 +2,14 @@
  * /stoic letter command handler.
  * Shows a modal for optional letter context, then creates a self-contained
  * ephemeral letter-writing exercise based on today's entry.
- * Includes a Bifrost-generated Socratic question so the exercise is complete
+ * Includes an LLM-generated Socratic question so the exercise is complete
  * without needing gateway events for follow-up.
  */
 
 import { InteractionResponseType } from 'discord-interactions';
 import { getTodaysEntry } from '../../db/entries.js';
 import { getUserContext } from '../../db/users.js';
-import { callBifrost } from '../../utils/bifrost.js';
+import { callLLM } from '../../utils/llm.js';
 import { editOriginalResponse } from '../../utils/discord.js';
 import { jsonResponse } from '../../utils/json.js';
 
@@ -37,7 +37,7 @@ async function generateReflectiveQuestion(
 		? `They shared this about what they want to say: "${letterContent}".`
 		: '';
 
-	const response = await callBifrost(env, {
+	const response = await callLLM(env, {
 		prompt: `You are a Socratic philosophy companion. Based on this Stoic meditation, write ONE reflective question that cuts through surface-level thinking. The question should be uncomfortable in a productive way — the kind that stays with someone all day.
 
 Entry: "${entryTitle}"
@@ -155,7 +155,7 @@ async function processLetterDeferred(
 			return;
 		}
 
-		// Generate a reflective question via Bifrost (with fallback)
+		// Generate a reflective question via LLM (with fallback)
 		let reflectiveQuestion: string;
 		try {
 			reflectiveQuestion = await generateReflectiveQuestion(

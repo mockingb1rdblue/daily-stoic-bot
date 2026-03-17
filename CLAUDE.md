@@ -5,8 +5,8 @@ Discord bot that posts daily Stoic philosophy entries and facilitates reflection
 ## Stack
 - **Runtime**: Cloudflare Workers
 - **Database**: D1 (SQLite)
-- **Secrets**: Bifrost KV (zero local secrets)
-- **LLM**: Bifrost Router (/v1/llm/chat) — bandit-selected multi-model
+- **Secrets**: KV store (zero local secrets)
+- **LLM**: Any OpenAI-compatible API via configurable router
 - **Discord**: discord-interactions library (raw REST, no discord.js)
 
 ## Commands
@@ -19,8 +19,8 @@ Discord bot that posts daily Stoic philosophy entries and facilitates reflection
 - `npm run pre-merge` — lint + test + typecheck + build
 
 ## Architecture
-- All LLM calls go through Bifrost `/v1/llm/chat` endpoint (never direct provider calls)
-- Discord secrets stored in Bifrost KV with `STOIC_` prefix
+- All LLM calls go through the configured `ROUTER_URL` endpoint (any OpenAI-compatible API)
+- Discord secrets stored in KV with `STOIC_` prefix
 - One job per file — split by responsibility, not arbitrary line limits
 - Structured logging: `{ event, component, message, ... }`
 - No floating promises — use `ctx.waitUntil()` for async work

@@ -8,4 +8,4 @@ Output: data/entries.json
 ## register-commands.mjs
 Registers Discord slash commands with the Discord API.
 Usage: `node scripts/register-commands.mjs [development|production]`
-Reads credentials from env vars or Bifrost KV.
+Reads credentials from env vars or KV store.

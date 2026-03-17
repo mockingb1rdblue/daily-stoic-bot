@@ -33,13 +33,13 @@ export async function checkStreakMilestone(
 
 	// Check cooldown — don't re-send the same milestone
 	const key = `STOIC_STREAK_${userId}_${streak}`;
-	const alreadySent = await env.BIFROST_KV.get(key);
+	const alreadySent = await env.SECRETS_KV.get(key);
 	if (alreadySent) return;
 
 	try {
 		await sendDM(env, userId, message);
 		// Mark as sent (no expiry — milestone is permanent)
-		await env.BIFROST_KV.put(key, 'sent');
+		await env.SECRETS_KV.put(key, 'sent');
 	} catch {
 		// User has DMs off — that's fine
 	}

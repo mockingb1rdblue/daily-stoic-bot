@@ -66,7 +66,7 @@ export async function checkInWithQuietUsers(
 
 		// Only send once per 7-day window (check KV for cooldown)
 		const cooldownKey = `STOIC_CHECKIN_${user.user_id}_${guild.guild_id}`;
-		const lastCheckin = await env.BIFROST_KV.get(cooldownKey);
+		const lastCheckin = await env.SECRETS_KV.get(cooldownKey);
 		if (lastCheckin) continue;
 
 		try {
@@ -77,7 +77,7 @@ export async function checkInWithQuietUsers(
 			await sendDM(env, user.user_id, message);
 
 			// Set 7-day cooldown
-			await env.BIFROST_KV.put(cooldownKey, 'sent', { expirationTtl: 604800 });
+			await env.SECRETS_KV.put(cooldownKey, 'sent', { expirationTtl: 604800 });
 		} catch {
 			// User may have DMs off — that's fine
 		}

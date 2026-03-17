@@ -6,7 +6,7 @@
 import { getTodaysEntry } from '../db/entries.js';
 import { type GuildConfig } from '../db/guilds.js';
 import { getUserContext } from '../db/users.js';
-import { callBifrost } from '../utils/bifrost.js';
+import { callLLM } from '../utils/llm.js';
 import { createThread, postInThread, addThreadMember } from '../utils/discord.js';
 import { getVoice } from './voices.js';
 
@@ -68,7 +68,7 @@ export async function runEveningExamination(env: Env, guilds: GuildConfig[]): Pr
 	let errorCount = 0;
 
 	for (const guild of guilds) {
-		const dailyMsgData = await env.BIFROST_KV.get(`STOIC_DAILY_MSG_${guild.guild_id}`);
+		const dailyMsgData = await env.SECRETS_KV.get(`STOIC_DAILY_MSG_${guild.guild_id}`);
 		if (!dailyMsgData) {
 			console.log({
 				event: 'evening_exam_no_daily_message',
@@ -128,7 +128,7 @@ Generate exactly 3 personalized Socratic questions for their evening reflection.
 Format each question on its own line, numbered 1-3. Keep each question to 1-2 sentences.
 Do not add preamble or conclusion — just the 3 questions.`;
 
-	const response = await callBifrost(env, {
+	const response = await callLLM(env, {
 		prompt,
 		taskType: 'context-analysis',
 		temperature: 0.8,

@@ -26,8 +26,8 @@ interface StoredMessageInfo {
 }
 
 /**
- * Report engagement reward to Bifrost Grimoire for cross-project MAB learning.
- * The bandit uses this to learn which LLM models produce the best Stoic content.
+ * Report engagement reward for model quality tracking.
+ * Uses this signal to learn which LLM models produce the best Stoic content.
  */
 async function reportEngagementToGrimoire(
 	env: Env,
@@ -37,7 +37,7 @@ async function reportEngagementToGrimoire(
 	engagementRate: number,
 ): Promise<void> {
 	try {
-		const apiKey = await env.BIFROST_KV.get('PROXY_API_KEY');
+		const apiKey = await env.SECRETS_KV.get('PROXY_API_KEY');
 		if (!apiKey) return;
 
 		await fetch(`${env.ROUTER_URL}/v1/grimoire/report`, {
@@ -66,7 +66,7 @@ export async function pollYesterdayReactions(env: Env, guilds: GuildConfig[]): P
 	for (const guild of guilds) {
 		try {
 			// Get yesterday's daily message from KV
-			const msgData = await env.BIFROST_KV.get(`STOIC_DAILY_MSG_${guild.guild_id}`);
+			const msgData = await env.SECRETS_KV.get(`STOIC_DAILY_MSG_${guild.guild_id}`);
 			if (!msgData) continue;
 
 			const msgInfo = JSON.parse(msgData) as StoredMessageInfo;
@@ -94,7 +94,7 @@ export async function pollYesterdayReactions(env: Env, guilds: GuildConfig[]): P
 				await checkStreakMilestone(env, user.id, guild.guild_id, streak);
 			}
 
-			// Report engagement to Grimoire for MAB reward signal
+			// Report engagement for model quality reward signal
 			const nonBotUsers = users.filter(u => !u.bot);
 			if (msgInfo.provider && msgInfo.modelId && nonBotUsers.length > 0) {
 				// Engagement rate: reactions / estimated guild size (rough proxy)

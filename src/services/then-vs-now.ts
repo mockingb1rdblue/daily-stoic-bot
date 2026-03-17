@@ -9,14 +9,14 @@
 
 import { getRandomEntry } from '../db/entries.js';
 import { type GuildConfig } from '../db/guilds.js';
-import { callBifrost } from '../utils/bifrost.js';
+import { callLLM } from '../utils/llm.js';
 import { postMessage } from '../utils/discord.js';
 
 export async function postThenVsNow(env: Env, guilds: GuildConfig[]): Promise<void> {
 	const entry = await getRandomEntry(env.DB);
 	if (!entry) return;
 
-	const response = await callBifrost(env, {
+	const response = await callLLM(env, {
 		prompt: `You're explaining a piece of ancient Stoic philosophy to a group of smart friends in their mid-30s who work in tech and science. They're not academics — they want to know why this matters on a Tuesday afternoon when their code won't compile, their kid is sick, or their manager just made a terrible decision.
 
 Original entry:
