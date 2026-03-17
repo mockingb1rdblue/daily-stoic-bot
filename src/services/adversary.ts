@@ -101,14 +101,23 @@ Rules:
 
 		await editOriginalResponse(appId, token, { embeds: [embed] });
 	} catch (error: unknown) {
+		const errMsg = error instanceof Error ? error.message : String(error);
+		const errStack = error instanceof Error ? error.stack : undefined;
 		console.error({
 			event: 'adversary_error',
 			component: 'services.adversary',
-			message: error instanceof Error ? error.message : 'Unknown error',
+			message: errMsg,
+			stack: errStack,
+			appId,
+			dayOfYear,
 		});
 
-		await editOriginalResponse(appId, token, {
-			content: 'The Adversary stumbled. Even critics have off days. Try again.',
-		});
+		try {
+			await editOriginalResponse(appId, token, {
+				content: `The Adversary stumbled: ${errMsg.slice(0, 200)}`,
+			});
+		} catch {
+			// Follow-up also failed — interaction token may have expired
+		}
 	}
 }

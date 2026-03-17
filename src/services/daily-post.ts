@@ -76,19 +76,13 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 	const quote = entry.quote.length > 1500 ? entry.quote.slice(0, 1497) + '...' : entry.quote;
 	const commentary = entry.commentary.length > 2000 ? entry.commentary.slice(0, 1997) + '...' : entry.commentary;
 
-	// Convert ALL CAPS title to Title Case for cleaner embed display
-	const titleCase = entry.title
-		.toLowerCase()
-		.replace(/\b\w/g, (c) => c.toUpperCase())
-		.replace(/\b(A|An|And|As|At|But|By|For|In|Nor|Of|On|Or|So|The|To|Up|Yet)\b/g, (w) => w.toLowerCase())
-		.replace(/^./, (c) => c.toUpperCase());
-
 	const embed = {
 		author: {
 			name: `${entry.date} — Day ${entry.day_of_year}`,
 		},
 		description: [
-			`## ${titleCase}\n`,
+			`## ${entry.title}\n`,
+			`*${hookResult.text}*\n`,
 			`>>> *"${quote}"*\n> \n> *— ${entry.quote_source}*`,
 			'',
 			commentary,
@@ -139,7 +133,6 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 	for (const guild of guilds) {
 		try {
 			const message = await postMessage(env, guild.channel_reflections, {
-				content: hookResult.text,
 				embeds: [embed],
 				components,
 			});

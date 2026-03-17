@@ -23,10 +23,10 @@ export interface StoicEntry {
  */
 function getCurrentDayOfYear(): number {
 	const now = new Date();
-	const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 0));
+	const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1)); // Jan 1
 	const diff = now.getTime() - start.getTime();
 	const oneDay = 1000 * 60 * 60 * 24;
-	return Math.floor(diff / oneDay);
+	return Math.floor(diff / oneDay) + 1; // 1-indexed: Jan 1 = day 1
 }
 
 /**
