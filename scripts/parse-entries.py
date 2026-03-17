@@ -304,7 +304,46 @@ def post_process(entries: list[dict]) -> list[dict]:
         e["commentary"] = re.sub(r'\n{3,}', '\n\n', e["commentary"]).strip()
         e["commentary"] = fix_commentary_drop_cap(e["commentary"])
 
+        # Fix OCR pipe artifacts across all text fields
+        for field in ["quote", "commentary"]:
+            e[field] = fix_ocr_pipes(e[field])
+
     return entries
+
+
+def fix_ocr_pipes(text: str) -> str:
+    """Fix OCR artifacts where pipes | are misread capital I or lowercase l.
+
+    Common patterns in The Daily Stoic OCR:
+      you'|l  → you'll        (pipe = l)
+      you'||  → you'll        (double pipe = ll)
+      you' |l → you'll        (space + pipe)
+      you' || → you'll        (space + double pipe)
+      you'|I  → you'll        (pipe + I = ll)
+      | t's   → It's          (pipe = I, space before t)
+      | n the → In the        (pipe = I)
+      |!      → ll            (pipe + exclamation = ll in some fonts)
+      |]      → ll            (pipe + bracket = ll)
+    """
+    # Fix you'|l, you'||, you'|I, you' |I patterns (contractions with l/ll)
+    # The OCR sometimes adds a space between ' and the pipe, or between pipe and next char
+    # Apostrophes can be straight (') or curly (\u2019)
+    apos = r"['\u2019]"
+    # Order matters — match longer patterns first
+    text = re.sub(apos + r"\s*\|\s*\|\s*", "'ll ", text)       # you' || → you'll
+    text = re.sub(apos + r"\s*\|\s*\]\s*", "'ll ", text)       # you' |] → you'll
+    text = re.sub(apos + r"\s*\|\s*!\s*", "'ll ", text)        # you' |! → you'll
+    text = re.sub(apos + r"\s*\|\s*[lI]", "'ll", text)         # you'|I → you'll
+    text = re.sub(apos + r"\s*\|(?=\s)", "'ll", text)          # you'| (pipe at end)
+
+    # Fix | at start of word = capital I
+    text = re.sub(r'\| ([tnfs])', lambda m: 'I' + m.group(1), text)  # | t → It, | n → In
+
+    # Fix remaining stray pipes that should be l or I
+    text = re.sub(r'\|([a-z])', lambda m: 'l' + m.group(1), text)   # |ife → life
+    text = re.sub(r'([a-z])\|', lambda m: m.group(1) + 'l', text)   # wil| → will
+
+    return text
 
 
 def validate_entries(entries: list[dict]) -> list[str]:
