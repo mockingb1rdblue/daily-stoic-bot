@@ -21,12 +21,32 @@ export interface StoicEntry {
 /**
  * Get the current day of year (1-366) in UTC.
  */
+/**
+ * Get the book's day_of_year for today's date.
+ * The Daily Stoic has 366 entries (includes Feb 29).
+ * In non-leap years, we skip the Feb 29 entry (day 60) so that
+ * March 1 always maps to day 61 regardless of leap year.
+ */
 function getCurrentDayOfYear(): number {
 	const now = new Date();
-	const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 1)); // Jan 1
-	const diff = now.getTime() - start.getTime();
-	const oneDay = 1000 * 60 * 60 * 24;
-	return Math.floor(diff / oneDay) + 1; // 1-indexed: Jan 1 = day 1
+	const month = now.getUTCMonth(); // 0-indexed
+	const day = now.getUTCDate();
+	const year = now.getUTCFullYear();
+	const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+
+	// Use actual calendar month lengths
+	const daysInMonth = [31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	let bookDay = day;
+	for (let i = 0; i < month; i++) {
+		bookDay += daysInMonth[i];
+	}
+
+	// Non-leap years: skip book's Feb 29 (day 60) — after Feb 28 (day 59), jump to day 61
+	if (!isLeapYear && bookDay > 59) {
+		bookDay += 1;
+	}
+
+	return Math.min(bookDay, 366);
 }
 
 /**
