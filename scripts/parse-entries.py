@@ -97,58 +97,149 @@ def fix_drop_cap(text: str) -> str:
 
 
 def fix_commentary_drop_cap(commentary: str) -> str:
-    """Fix commentary that starts with a lowercase letter due to OCR drop-cap artifacts.
+    """Fix OCR drop-cap artifacts at the start of commentary text.
 
-    The OCR separates the decorative first letter of each entry's commentary section.
-    After extraction, the commentary often starts with just the tail of the word:
-      "he fact that..." should be "The fact that..."
-      "hy did you..." should be "Why did you..."
-
-    Common patterns from The Daily Stoic's drop caps:
-      T -> "he ", "his ", "here ", "here's ", "hink ", "hat "
-      W -> "hy ", "hat ", "hen ", "e "
-      A -> "nd ", "s ", " "
-      I -> "t ", "n ", "f ", "t's ", "magine "
-      S -> "eneca ", "ome ", "o "
-      O -> "ne ", "nly ", "f ", "ur "
-      E -> "pictetus ", "very ", "ven "
-      P -> "eople ", "hilosophy "
+    The DjVu OCR mangles decorative first letters in two ways:
+    1. Lowercase start: the capital letter is missing ("he fact" → "The fact")
+    2. Garbage start: OCR misreads the decorative letter as symbols/numbers
+       ("W: resent" → "We resent", "C6 O nly" → "Only", "A! first" → "At first")
+    3. Joined words: space between drop cap and word is missing
+       ("Aworker" → "A worker", "Ina letter" → "In a letter")
     """
-    if not commentary or commentary[0].isupper():
+    if not commentary:
         return commentary
 
-    # Map of common lowercase starts to their missing capital
-    # These are the most frequent patterns from OCR drop-caps in The Daily Stoic
-    drop_cap_fixes = {
-        'he ': 'T',   'his ': 'T',  'here ': 'T',  'hink ': 'T',  'hat ': 'T',
-        'here\'s ': 'T', 'hose ': 'T', 'hrough ': 'T',
-        'hy ': 'W',   'hat ': 'W',  'hen ': 'W',   'e ': 'W',     'ith ': 'W',
-        'hat\'s ': 'W',
-        'nd ': 'A',   's ': 'A',    'ccording ': 'A', 'lexander ': 'A', 'fter ': 'A',
-        't ': 'I',    'n ': 'I',    'f ': 'I',     't\'s ': 'I',  'magine ': 'I',
-        'eneca ': 'S', 'ome ': 'S', 'o ': 'S',     'toic ': 'S',  'elf': 'S',
-        'ne ': 'O',   'nly ': 'O',  'f ': 'O',     'ur ': 'O',    'nce ': 'O',
-        'eople ': 'P', 'hilosophy ': 'P', 'art ': 'P', 'erhaps ': 'P',
-        'very ': 'E',  'ven ': 'E', 'pictetus ': 'E', 'ach ': 'E',
-        'arcus ': 'M', 'ost ': 'M', 'any ': 'M',
-        'ou ': 'Y',   'ou\'ll ': 'Y', 'ou\'ve ': 'Y', 'es ': 'Y',
-        'ot ': 'N',   'o ': 'N',    'othing ': 'N', 'ow ': 'N',
-        'or ': 'F',   'ew ': 'F',   'irst ': 'F',
-        'uring ': 'D', 'on\'t ': 'D', 'o ': 'D',
-        'isten ': 'L', 'ife ': 'L', 'ater ': 'L', 'et ': 'L',
-        'emember ': 'R', 'ead ': 'R', 'oman ': 'R',
-        'onsider ': 'C', 'an ': 'C', 'ato ': 'C',
-        'ust ': 'J',
-        'reek ': 'G', 'od ': 'G',
-        'eing ': 'B', 'ut ': 'B', 'efore ': 'B',
-    }
+    # Phase 1: Fix garbage OCR starts (uppercase but clearly broken)
+    garbage_fixes = [
+        # Pattern → replacement (applied to the start of commentary)
+        (r'^W: ', 'We '),
+        (r'^W:(?=[a-z])', 'We '),  # W:resent → We resent
+        (r'^C6 O nly ', '"Only '),
+        (r'^C6 ', '"'),  # C6 haracter → "Character (it's a quote starting)
+        (r'^V4 ', '"'),  # V4 eno → "Zeno
+        (r'^A! ', 'At '),
+        (r'^GG ', 'G'),  # GG reat → Great
+        (r'^EE ', '"L'),  # EE ive → "Live
+        (r'^SR ', ''),  # SR ives → (strip, next word starts sentence)
+        (r'^II n ', 'In '),
+        (r'^Il t', 'It t'),  # Il tis → It tis → needs more fixing
+        (r'^Il n ', 'In '),
+        (r'^Il ', 'I'),   # Il socrates → Isocrates
+        (r'^Wi ', 'Will '),
+        (r'^Ll: o ', 'To '),  # Ll: o steel → To steel
+        (r'^Ll ', 'All '),
+        (r'^F" ', '"I\'ll '),  # F" be happy → "I'll be happy
+        (r'^AS ', 'As '),
+        (r'^A!(?=[a-z])', 'At '),
+    ]
 
-    for suffix, capital in sorted(drop_cap_fixes.items(), key=lambda x: -len(x[0])):
-        if commentary.startswith(suffix):
-            return capital + commentary
+    for pattern, replacement in garbage_fixes:
+        if re.match(pattern, commentary):
+            commentary = re.sub(pattern, replacement, commentary, count=1)
+            break
 
-    # If no match found, just capitalize the first letter
-    return commentary[0].upper() + commentary[1:]
+    # Phase 2: Fix joined words (drop cap letter joined to next word)
+    joined_word_fixes = [
+        (r'^Aworker', 'A worker'),
+        (r'^Awoman', 'A woman'),
+        (r'^Aarcher', 'An archer'),
+        (r'^Adegree', 'A degree'),
+        (r'^Asignificant', 'A significant'),
+        (r'^Awell-', 'A well-'),
+        (r'^Agood', 'A good'),
+        (r'^Aword', 'A word'),
+        (r'^Ina ', 'In a '),
+        (r'^Inan ', 'In an '),
+        (r'^Inone', 'In one'),
+        (r'^Braham ', 'Abraham '),
+        (r'^Urely,', 'Surely,'),
+        (r'^Nstead', 'Instead'),
+        (r'^Nstinctively', 'Instinctively'),
+        (r'^Nstead', 'Instead'),
+        (r'^Nne ', 'Anne '),
+        (r'^Nherent', 'Inherent'),
+        (r'^Bstacles', 'Obstacles'),
+        (r'^Hortly', 'Shortly'),
+        (r'^Hatever', 'Whatever'),
+        (r'^Hat\'s', 'What\'s'),
+        (r'^Hese ', 'These '),
+        (r'^Hesiod', 'Hesiod'),
+        (r'^Hyestes', 'Thyestes'),
+        (r'^Magine', 'Imagine'),
+        (r'^Lutarch', 'Plutarch'),
+        (r'^Lexandria', 'Alexandria'),
+        (r'^Lite ', 'Elite '),
+        (r'^Ulus ', 'Aulus '),
+        (r'^Rmember', 'Remember'),
+        (r'^Aceeding', 'According'),
+        (r'^Yndon', 'Lyndon'),
+        (r'^Weve ', 'We\'ve '),
+        (r'^Were ', 'We\'re '),
+        (r'^Wiliam', 'William'),
+        (r'^Wais ', 'Watching '),  # context: "Watching other people succeed"
+        (r'^Assign ', 'A sign '),
+        (r'^Hey ', 'They '),
+        (r'^Iake ', 'Take '),  # I ake → Take
+        (r'^Using ', 'Musing '),  # context: "Musing in his notebook"
+    ]
+
+    for pattern, replacement in joined_word_fixes:
+        if re.match(pattern, commentary):
+            commentary = re.sub(pattern, replacement, commentary, count=1)
+            break
+
+    # Phase 3: Fix remaining lowercase starts (original logic)
+    if commentary[0].islower():
+        drop_cap_fixes = {
+            'he ': 'T',   'his ': 'T',  'here ': 'T',  'hink ': 'T',  'hat ': 'T',
+            'here\'s ': 'T', 'hose ': 'T', 'hrough ': 'T',
+            'hy ': 'W',   'hen ': 'W',   'e ': 'W',     'ith ': 'W',
+            'nd ': 'A',   's ': 'A',    'ccording ': 'A', 'lexander ': 'A', 'fter ': 'A',
+            't ': 'I',    'n ': 'I',    'f ': 'I',     't\'s ': 'I',  'magine ': 'I',
+            'eneca ': 'S', 'ome ': 'S', 'o ': 'S',     'toic ': 'S',  'elf': 'S',
+            'ne ': 'O',   'nly ': 'O',  'ur ': 'O',    'nce ': 'O',
+            'eople ': 'P', 'hilosophy ': 'P', 'art ': 'P', 'erhaps ': 'P',
+            'very ': 'E',  'ven ': 'E', 'pictetus ': 'E', 'ach ': 'E',
+            'arcus ': 'M', 'ost ': 'M', 'any ': 'M', 'arcus\'s ': 'M',
+            'ou ': 'Y',   'ou\'ll ': 'Y', 'ou\'ve ': 'Y', 'es ': 'Y',
+            'ot ': 'N',   'othing ': 'N', 'ow ': 'N',
+            'or ': 'F',   'ew ': 'F',   'irst ': 'F',
+            'uring ': 'D', 'on\'t ': 'D',
+            'isten ': 'L', 'ife ': 'L', 'ater ': 'L', 'et ': 'L',
+            'emember ': 'R', 'ead ': 'R', 'oman ': 'R',
+            'onsider ': 'C', 'an ': 'C', 'ato ': 'C',
+            'ust ': 'J',
+            'reek ': 'G', 'od ': 'G', 'reat ': 'G',
+            'eing ': 'B', 'ut ': 'B', 'efore ': 'B',
+            'olitical ': 'P', 'rayer ': 'P', 'rofessionals ': 'P', 'resident ': 'P',
+            'odern ': 'M', 'achiavelli ': 'M',
+            'iktor ': 'V', 'ery ': 'V',
+            'imple ': 'S', 'top ': 'S', 'tories ': 'S', 'ocrates ': 'S', 'ocrates,' : 'S',
+            'elf-': 'S',
+            'istory ': 'H', 'ope ': 'H', 'ere\'s ': 'H',
+            'oday ': 'T', 'oday,': 'T',
+            'aw ': 'L', 'ong ': 'L',
+            'y ': 'B',
+            'espite ': 'D', 'ancing ': 'D', 'iogenes ': 'D',
+            'rnest ': 'E', 'arlier ': 'E', 'lse ': 'E',
+            'obody ': 'N', 'elson ': 'N', 'aturally ': 'N',
+            'ts ': 'I',
+            'pinions': 'O',
+            'ruce ': 'B',
+            'ontemporary ': 'C',
+        }
+
+        for suffix, capital in sorted(drop_cap_fixes.items(), key=lambda x: -len(x[0])):
+            if commentary.startswith(suffix):
+                return capital + commentary
+
+        # Last resort: just capitalize
+        return commentary[0].upper() + commentary[1:]
+
+    # Fix A\dog → A dog (backslash artifacts)
+    commentary = re.sub(r'^A\\', 'A ', commentary)
+
+    return commentary
 
 
 def split_into_raw_entries(text: str) -> list[tuple[int, str]]:
