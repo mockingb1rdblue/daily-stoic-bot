@@ -8,6 +8,7 @@
 import { discordApi } from '../utils/discord.js';
 import { recordEngagement, getUserStreak } from './engagement.js';
 import { checkStreakMilestone } from './streaks.js';
+import { dateToBookDay } from '../db/entries.js';
 import { type GuildConfig } from '../db/guilds.js';
 
 interface ReactionUser {
@@ -78,11 +79,10 @@ export async function pollYesterdayReactions(env: Env, guilds: GuildConfig[]): P
 				'GET',
 			)) as ReactionUser[];
 
-			// Calculate yesterday's day_of_year
+			// Calculate yesterday's book day_of_year
 			const yesterday = new Date();
 			yesterday.setUTCDate(yesterday.getUTCDate() - 1);
-			const startOfYear = new Date(Date.UTC(yesterday.getUTCFullYear(), 0, 0));
-			const dayOfYear = Math.floor((yesterday.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+			const dayOfYear = dateToBookDay(yesterday);
 
 			for (const user of users) {
 				if (user.bot) continue;
