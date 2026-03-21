@@ -92,7 +92,7 @@ export async function postDailyEntry(env: Env, guilds: GuildConfig[]): Promise<v
 			{ name: 'Theme', value: entry.month_theme, inline: true },
 		],
 		footer: {
-			text: 'Tap 🏛️ to mark that you showed up',
+			text: '🏛️ = i read this',
 		},
 		timestamp: new Date().toISOString(),
 	};

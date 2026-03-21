@@ -51,20 +51,18 @@ const FORUM_TAGS = [
 	{ name: 'Life Update', emoji_name: '🔄' },
 ];
 
-const FORUM_GUIDELINES = `Welcome to the Stoic Commonplace Book.
+const FORUM_GUIDELINES = `A place to save entries that hit and connect them to your own life. No pressure, no wrong way to use it.
 
-This is a living document — a place to connect the daily Stoic entries to your own life. There's no pressure to post, no streak to maintain, and no wrong way to use it.
-
-**How to use this channel:**
+**How it works:**
 • Each week, the bot opens a thread for that week's entries
-• Drop a line whenever something resonates — today, next week, or months later
-• Use tags to categorize: the three disciplines (Perception, Action, Will), the four virtues, or Personal/Life Update for your own reflections
+• Drop in whenever something connects — today, next week, whenever
+• Use tags to sort: Perception, Action, Will, the four virtues, or Personal/Life Update
 
-**Guidelines:**
+**Ground rules:**
 • Be honest over impressive
-• One genuine sentence beats ten performative ones
-• This is reflection, not debate — save challenges for #stoic-discussion
-• What's shared here stays here — respect the vulnerability`;
+• One real sentence beats ten that sound deep
+• This is reflection, not debate — take arguments to #stoic-discussion
+• What's shared here stays here`;
 
 export async function handleSetup(
 	interaction: Record<string, unknown>,
@@ -120,14 +118,14 @@ export async function handleSetup(
 			guildId,
 			'stoic-reflections',
 			category.id,
-			'Daily Stoic entries and evening examination threads',
+			'Daily entries + evening questions',
 		);
 		const discussion = await createTextChannel(
 			env,
 			guildId,
 			'stoic-discussion',
 			category.id,
-			'Philosophical debates, challenges, and weekly virtue polls',
+			'Argue about stuff + weekly polls',
 		);
 
 		// Create forum channel with tags, guidelines, gallery layout, and default reaction
@@ -154,15 +152,15 @@ export async function handleSetup(
 			applied_tags: welcomeTag ? [welcomeTag.id] : [],
 			message: {
 				content: [
-					'**Welcome to the Stoic Commonplace Book.**\n',
-					'A commonplace book is an ancient practice — Marcus Aurelius kept one, Seneca referenced his constantly. ',
-					'It\'s a place to collect passages, reflections, and connections between what you read and what you live.\n',
+					'**Welcome to the Commonplace Book.**\n',
+					'A commonplace book is basically a personal highlight reel — Marcus Aurelius kept one, Seneca referenced his all the time. ',
+					'It\'s where you save stuff that hits and connect it to your own life.\n',
 					'**How this works:**',
-					'- Each week, new threads appear for that week\'s daily entries',
-					'- Drop in whenever something connects — today, next month, or a year from now',
-					'- Use the tags to categorize: the three disciplines (Perception, Action, Will), the four cardinal virtues, or Personal for your own reflections',
+					'- Each week, new threads show up for that week\'s entries',
+					'- Drop in whenever something connects — today, next month, whenever',
+					'- Use the tags to sort things: Perception, Action, Will, the four virtues, or Personal for your own stuff',
 					'- There\'s no pressure to post. One honest line beats ten performative ones.\n',
-					'**Start here:** What brought you to Stoic philosophy? What are you carrying right now that you hope it helps with?',
+					'**Start here:** What are you dealing with rite now that made you interested in this?',
 					'\n*"Waste no more time arguing about what a good person should be. Be one." — Marcus Aurelius*',
 				].join('\n'),
 			},
@@ -202,15 +200,15 @@ export async function handleSetup(
 			type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 			data: {
 				content:
-					`**Daily Stoic is ready!** Created:\n\n` +
-					`<#${reflections.id}> — Daily entries + evening reflections\n` +
-					`<#${discussion.id}> — Debates, challenges, virtue polls\n` +
-					`<#${commonplace.id}> — Evergreen commonplace book (with Stoic tags)\n\n` +
+					`**Daily Stoic is ready.** Here's what got created:\n\n` +
+					`<#${reflections.id}> — where the daily entries show up + evening questions\n` +
+					`<#${discussion.id}> — for arguing about stuff + weekly polls\n` +
+					`<#${commonplace.id}> — save entries you want to come back to\n\n` +
 					`**Schedule** (${timezoneChoice}):\n` +
 					`Morning post: **${formatHour(7)}** local\n` +
-					`Evening exam: **${formatHour(20)}** local\n` +
+					`Evening questions: **${formatHour(20)}** local\n` +
 					`Friday poll: **${formatHour(17)}** local\n\n` +
-					`Use \`/stoic schedule\` to change times, or \`/stoic context\` to set your personal lens.`,
+					`Use \`/stoic schedule\` to change times, or \`/stoic context\` to tell the bot a bit about yourself so the responses are less generic.`,
 			},
 		});
 	} catch (error: unknown) {

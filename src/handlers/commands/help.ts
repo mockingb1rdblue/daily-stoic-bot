@@ -21,7 +21,7 @@ export async function handleHelp(
 	const embeds = [
 		{
 			author: { name: 'Daily Stoic Bot' },
-			description: '366 days of Stoic philosophy. One entry per day.\nNo streaks, no leaderboards — just honest reflection.',
+			description: '366 days of Stoic philosophy. One entry per day.\nNo leaderboards, no guilt — just show up when you can.',
 			color: 0x8b7355,
 			fields: [
 				{ name: 'Status', value: statusLine, inline: true },
@@ -33,14 +33,14 @@ export async function handleHelp(
 		},
 		{
 			description: [
-				'## Daily Features',
-				'Each morning: Stoic entry with quote + commentary + LLM-generated hook.',
-				'Tap 🏛️ on the post to track your streak (private — only you see milestones).\n',
+				'## What It Does',
+				'Every morning you get a Stoic entry — quote, commentary, and a one-liner to get you to actually read the thing.',
+				'Tap 🏛️ on the post if you read it. That\'s it. The bot tracks your streak privately — nobody else sees it.\n',
 				'**Buttons on each post:**',
-				'⚔️ Challenge This — philosophical counter-argument',
-				'💭 Reflect — quick modal to capture what landed',
-				'📖 Save to Commonplace — creates a forum thread\n',
-				'Each evening: 3 personalized Socratic questions in a private thread.',
+				'⚔️ Challenge This — argue against the entry',
+				'💭 Reflect — jot down what stuck with you',
+				'📖 Save to Commonplace — saves it to a forum thread for later\n',
+				'Each evening: you get 3 questions in a private thread to think about your day.',
 			].join('\n'),
 			color: 0x8b7355,
 		},
@@ -48,8 +48,8 @@ export async function handleHelp(
 			description: '## Commands',
 			color: 0x8b7355,
 			fields: [
-				{ name: '`/stoic obstacle`', value: 'Stoic reframe for what you\'re wrestling with', inline: false },
-				{ name: '`/stoic context`', value: 'Set your personal lens for tailored reflections', inline: false },
+				{ name: '`/stoic obstacle`', value: 'Describe what\'s bugging you — get a different way to look at it', inline: false },
+				{ name: '`/stoic context`', value: 'Tell the bot about your life so it can be less generic', inline: false },
 				{ name: '`/stoic letter`', value: 'Write an unsent letter using today\'s entry', inline: false },
 				{ name: '`/stoic voice`', value: 'Epictetus (blunt) · Seneca (eloquent) · Marcus (introspective)', inline: false },
 			],

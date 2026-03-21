@@ -1,6 +1,6 @@
 # Daily Stoic Bot
 
-A Discord bot that posts daily Stoic philosophy entries and facilitates reflection through AI-powered Socratic dialogue.
+A Discord bot that posts daily Stoic philosophy entries and helps you actually think about them.
 
 **[Add to your server](https://discord.com/api/oauth2/authorize?client_id=1483271790829764729&permissions=2419724368&scope=bot%20applications.commands)**
 
@@ -10,8 +10,8 @@ A Discord bot that posts daily Stoic philosophy entries and facilitates reflecti
 
 | Command | Description |
 |---------|-------------|
-| `/stoic obstacle` | Describe what you're wrestling with — get a Stoic reframe and a Socratic question |
-| `/stoic context` | Set your personal lens ("I'm a nurse", "going through a divorce") for tailored reflections |
+| `/stoic obstacle` | Describe what's bugging you — get a different way to look at it |
+| `/stoic context` | Tell the bot about your life so its responses are less generic |
 | `/stoic letter` | Write an unsent letter to someone using today's entry as a lens (private) |
 | `/stoic voice` | Choose your philosopher: Epictetus (blunt), Seneca (eloquent), Marcus Aurelius (introspective) |
 | `/stoic help` | Show all commands and current schedule |
@@ -31,17 +31,17 @@ These run on a schedule configured per server via `/stoic setup` and `/stoic sch
 
 | Feature | When | What happens |
 |---------|------|--------------|
-| Daily Post | Every morning | Posts today's entry with an AI-generated hook, quote, and commentary. Adds a 🏛️ reaction for engagement tracking. |
-| Evening Examination | Every evening | Creates private threads with 3 personalized Socratic questions for each active participant |
+| Daily Post | Every morning | Posts today's entry with a casual one-liner about it, the quote, and commentary. Adds a 🏛️ reaction so you can mark that you read it. |
+| Evening Questions | Every evening | Creates private threads with 3 questions to think about your day |
 | Virtue Poll | Every Friday | Posts a poll in #stoic-discussion: Courage, Wisdom, Justice, or Temperance |
-| Then vs. Now | Every Friday | AI-generated modern adaptation of a random entry |
+| Then vs. Now | Every Friday | A modern take on a random entry |
 | Commonplace Thread | Every Monday | Opens a new forum thread in #stoic-commonplace with the week's entries |
-| Engagement Tracking | Every morning | Checks yesterday's reactions, updates private streaks, sends milestone DMs |
+| Reading Streaks | Every morning | Tracks who's reading (private), updates streaks, and the bot notices when you've been consistent |
 
 Each daily post includes three buttons:
-- **Challenge This** — The Adversary generates the strongest philosophical objection
-- **Reflect** — Opens a quick form to capture what landed for you
-- **Save to Commonplace** — Creates a forum thread for that entry
+- **Challenge This** — Argues the other side of the entry
+- **Reflect** — Quick form to jot down what stuck with you
+- **Save to Commonplace** — Saves it to a forum thread for later
 
 ### What a daily post looks like
 
@@ -107,7 +107,7 @@ The bot works with any API that accepts OpenAI-compatible chat requests. Set `RO
 | OpenRouter | `https://openrouter.ai/api` | Multi-model, pay-per-token |
 | OpenAI | `https://api.openai.com` | Direct GPT access |
 | Anthropic (via proxy) | Your proxy URL | Needs OpenAI-compatible wrapper |
-| Bifrost Bridge | Your Bifrost Worker URL | Multi-model bandit routing |
+| Bifrost Bridge | Your Bifrost Worker URL | Picks the best AI model automatically |
 | Ollama (local) | `http://localhost:11434` | Free, local inference |
 
 ### 6. Store secrets

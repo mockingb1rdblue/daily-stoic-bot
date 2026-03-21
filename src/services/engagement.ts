@@ -71,8 +71,8 @@ export async function checkInWithQuietUsers(
 
 		try {
 			const message = daysMissed
-				? `hey — no pressure, just leaving the door open. today's entry might be worth 30 seconds if you have them.`
-				: `hey — looks like you haven't jumped in yet. whenever you're ready, the daily entries are rolling. no rush.`;
+				? `hey — today's entry is pretty solid if you've got 30 seconds.`
+				: `hey — the bot's been posting daily if you want to check it out. no pressure.`;
 
 			await sendDM(env, user.user_id, message);
 

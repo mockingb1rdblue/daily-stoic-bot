@@ -346,7 +346,7 @@ async function handleReflectSubmit(
 	return jsonResponse({
 		type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 		data: {
-			content: 'Reflection saved. The practice of noticing what lands is itself the practice.',
+			content: 'noted. 🤙',
 			flags: 64,
 		},
 	});
