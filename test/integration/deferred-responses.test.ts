@@ -1,4 +1,11 @@
 /**
+ * @law Pragmatic Law — solving the full problem once is always faster than
+ * deferring it. This gate exists because catching failures here is strictly
+ * cheaper than catching them downstream. Never weaken, skip, or defer.
+ * See: docs/constitutions/pragmatic-law.md
+ */
+
+/**
  * Integration tests for deferred response patterns.
  * Verifies which commands return type 5 (DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE)
  * and which respond immediately.

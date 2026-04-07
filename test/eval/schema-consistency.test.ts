@@ -1,4 +1,11 @@
 /**
+ * @law Pragmatic Law — solving the full problem once is always faster than
+ * deferring it. This gate exists because catching failures here is strictly
+ * cheaper than catching them downstream. Never weaken, skip, or defer.
+ * See: docs/constitutions/pragmatic-law.md
+ */
+
+/**
  * Schema/code consistency evaluation.
  * Verifies that the SQL schema, TypeScript interfaces, and source code are in sync.
  */

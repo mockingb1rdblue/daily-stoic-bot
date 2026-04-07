@@ -14,3 +14,5 @@ wrangler.local.toml
 wrangler.toml.scrubbed
 scripts/deploy-local.sh
 .dev.vars
+NEXT-SESSION.md
+IMPLEMENTATION-PLAN.md

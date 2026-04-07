@@ -43,7 +43,12 @@ export async function handleVoice(
 			JSON.stringify({
 				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 				data: {
-					content: `**Available philosopher voices:**\n${available}\n\nUse \`/stoic voice philosopher:<name>\` to select one.`,
+					embeds: [{
+						author: { name: 'Choose Your Philosopher' },
+						description: `${available}\n\nUse \`/stoic voice philosopher:<name>\` to select one.`,
+						color: 0x8b7355,
+						footer: { text: 'Each voice shapes how the bot speaks to you.' },
+					}],
 					flags: 64,
 				},
 			}),
@@ -68,7 +73,11 @@ export async function handleVoice(
 			JSON.stringify({
 				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 				data: {
-					content: `Your philosopher voice has been set to **${voice.displayName}**.\n\nAll future reflections will be delivered in their voice.`,
+					embeds: [{
+						author: { name: 'Voice Updated' },
+						description: `Your philosopher voice has been set to **${voice.displayName}**.\n\nAll future reflections will be delivered in their voice.`,
+						color: 0x8b7355,
+					}],
 					flags: 64, // Ephemeral
 				},
 			}),

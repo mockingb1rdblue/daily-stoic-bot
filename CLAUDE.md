@@ -2,6 +2,20 @@
 
 Discord bot that posts daily Stoic philosophy entries and facilitates reflection through AI-powered Socratic dialogue.
 
+## Credentials & Secrets
+
+All API tokens, keys, and secrets are managed in **Bifrost KV vault**.
+Before creating any credential or asking the user to create one, check what already exists:
+
+```bash
+curl https://crypt-core.mock1ng.workers.dev/v1/admin/keys/inventory
+```
+
+Or via MCP: call the `vault_inventory` tool (available in bifrost MCP).
+
+Common keys: `CF_SECURITY_TOKEN` (WAF), `CF_DNS_TOKEN` (DNS), `CF_WORKERS_TOKEN` (Workers),
+`GITHUB_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` — see vault for full list.
+
 ## Stack
 - **Runtime**: Cloudflare Workers
 - **Database**: D1 (SQLite)

@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+# Pragmatic Law — solving the full problem once is always faster than
+# deferring it. This gate exists because catching failures here is strictly
+# cheaper than catching them downstream. Never weaken, skip, or defer.
+# See: docs/constitutions/pragmatic-law.md
 """
 Parse The Daily Stoic DjVu text into structured JSON entries.
 Source: Archive.org PDFDrive copy (DjVu OCR extraction)

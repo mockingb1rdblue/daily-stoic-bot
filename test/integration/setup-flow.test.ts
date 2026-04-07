@@ -1,4 +1,11 @@
 /**
+ * @law Pragmatic Law — solving the full problem once is always faster than
+ * deferring it. This gate exists because catching failures here is strictly
+ * cheaper than catching them downstream. Never weaken, skip, or defer.
+ * See: docs/constitutions/pragmatic-law.md
+ */
+
+/**
  * Integration tests for setup/cleanup command flow.
  * Tests permission checks and configuration guards without actual Discord API calls.
  */

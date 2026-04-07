@@ -176,31 +176,46 @@ async function processLetterDeferred(
 			reflectiveQuestion = 'What would change about today if you actually believed what you just read?';
 		}
 
-		// Build the self-contained exercise prompt
-		let prompt = `**Today's Letter-Writing Exercise**\n\n`;
-		prompt += `*"${entry.quote}"*\n*— ${entry.quote_source}*\n\n`;
-		prompt += `**Theme:** ${entry.title}\n\n`;
-		prompt += `You're writing a letter to **${recipient}**. `;
-		prompt += `Using this meditation as a lens, write what needs to be said — `;
-		prompt += `whether it's to your past self, your future self, or someone who shaped you.\n\n`;
+		// Build the letter exercise as a rich embed
+		const descriptionParts = [
+			`*"${entry.quote.slice(0, 800)}"*\n*— ${entry.quote_source}*\n`,
+			`You're writing a letter to **${recipient}**. Using this meditation as a lens, write what needs to be said — whether it's to your past self, your future self, or someone who shaped you.`,
+		];
 
 		if (letterContent) {
-			prompt += `*You mentioned: "${letterContent}"*\n\n`;
+			descriptionParts.push(`\n*You mentioned: "${letterContent}"*`);
 		}
 
 		if (userContext) {
-			prompt += `*Consider how this connects to what you've shared about yourself: ${userContext.context_text}*\n\n`;
+			descriptionParts.push(`\n*Consider how this connects to what you've shared about yourself: ${userContext.context_text}*`);
 		}
 
-		prompt += `**Before you write, sit with this question:**\n`;
-		prompt += `> *${reflectiveQuestion}*\n\n`;
+		const fields = [
+			{
+				name: 'Before you write, sit with this question',
+				value: `> *${reflectiveQuestion}*`,
+				inline: false,
+			},
+			{
+				name: 'Instructions',
+				value: [
+					'1. Open your notes app, journal, or just think',
+					'2. Take at least 5 minutes — don\'t rush',
+					'3. Be honest with yourself; only you can see this',
+					'4. Let the question guide your letter, not constrain it',
+				].join('\n'),
+				inline: false,
+			},
+		];
 
-		prompt += `**Instructions:**\n`;
-		prompt += `1. Open your notes app, journal, or just think\n`;
-		prompt += `2. Take at least 5 minutes — don't rush\n`;
-		prompt += `3. Be honest with yourself; only you can see this\n`;
-		prompt += `4. Let the question guide your letter, not constrain it\n\n`;
-		prompt += `*This exercise is yours alone. No one else sees this prompt.*`;
+		const embed = {
+			author: { name: 'The Unsent Letter' },
+			description: descriptionParts.join('\n').slice(0, 4000),
+			color: 0x8b7355,
+			fields,
+			footer: { text: `Theme: ${entry.title} | This exercise is yours alone.` },
+			timestamp: new Date().toISOString(),
+		};
 
 		// Store the exercise in unsent_letters for the user's history
 		try {
@@ -217,7 +232,7 @@ async function processLetterDeferred(
 		}
 
 		await editOriginalResponse(appId, token, {
-			content: prompt,
+			embeds: [embed],
 			flags: 64, // Ephemeral
 		});
 	} catch (error: unknown) {

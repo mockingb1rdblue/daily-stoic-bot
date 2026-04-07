@@ -38,15 +38,24 @@ export async function handleContext(
 		// If no text provided, show current context
 		if (!contextText) {
 			const existing = await getUserContext(env.DB, userId);
-			const message = existing
-				? `**Your current personal lens:**\n> ${existing.context_text}\n\nUse \`/stoic context text:<new context>\` to update it.`
-				: 'You haven\'t set a personal lens yet. Use `/stoic context text:<your context>` to set one.\n\nExample: `/stoic context text:I\'m a software engineer struggling with work-life balance and imposter syndrome`';
+			const embed = existing
+				? {
+					author: { name: 'Your Personal Lens' },
+					description: `> ${existing.context_text}\n\nUse \`/stoic context text:<new context>\` to update it.`,
+					color: 0x8b7355,
+				}
+				: {
+					author: { name: 'Personal Lens' },
+					description: 'You haven\'t set a personal lens yet.\n\nUse `/stoic context text:<your context>` to set one.\n\n**Example:** `/stoic context text:I\'m a software engineer struggling with work-life balance and imposter syndrome`',
+					color: 0x8b7355,
+					footer: { text: 'Your context helps the bot personalize reflections.' },
+				};
 
 			return new Response(
 				JSON.stringify({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: message,
+						embeds: [embed],
 						flags: 64, // Ephemeral
 					},
 				}),
@@ -60,7 +69,11 @@ export async function handleContext(
 			JSON.stringify({
 				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 				data: {
-					content: `Your personal lens has been updated. Future reflections will be tailored to:\n> ${contextText}`,
+					embeds: [{
+						author: { name: 'Lens Updated' },
+						description: `Your personal lens has been updated. Future reflections will be tailored to:\n> ${contextText}`,
+						color: 0x8b7355,
+					}],
 					flags: 64, // Ephemeral
 				},
 			}),
